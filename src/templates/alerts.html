@@ -1,0 +1,1610 @@
+{% extends "base.html" %}
+
+{% block title %}Alerts - Trading Platform{% endblock %}
+
+{% block content %}
+<!-- Alerts Layout -->
+<div class="alerts-layout">
+  <!-- Main Alerts Content -->
+  <div class="alerts-main">
+    <!-- Alerts Header -->
+    <div class="alerts-header">
+      <h1 class="md-headline-medium">Trading Alerts</h1>
+      <div class="alerts-actions">
+        <button class="md-outlined-button" onclick="markAllAsRead()">
+          <span class="material-icons">mark_email_read</span>
+          Mark All Read
+        </button>
+        
+        <button class="md-outlined-button" onclick="clearOldAlerts()">
+          <span class="material-icons">clear_all</span>
+          Clear Old
+        </button>
+        
+        <button class="md-filled-button" onclick="createAlert()">
+          <span class="material-icons">add_alert</span>
+          Create Alert
+        </button>
+      </div>
+    </div>
+    
+    <!-- Alert Summary -->
+    <div class="alert-summary">
+      <div class="summary-card">
+        <div class="summary-icon">
+          <span class="material-icons">notifications_active</span>
+        </div>
+        <div class="summary-content">
+          <div class="summary-number" id="activeAlerts">0</div>
+          <div class="summary-label">Active Alerts</div>
+        </div>
+      </div>
+      
+      <div class="summary-card">
+        <div class="summary-icon">
+          <span class="material-icons">star</span>
+        </div>
+        <div class="summary-content">
+          <div class="summary-number" id="goldenAlerts">0</div>
+          <div class="summary-label">Golden Alerts</div>
+        </div>
+      </div>
+      
+      <div class="summary-card">
+        <div class="summary-icon">
+          <span class="material-icons">schedule</span>
+        </div>
+        <div class="summary-content">
+          <div class="summary-number" id="triggeredToday">0</div>
+          <div class="summary-label">Triggered Today</div>
+        </div>
+      </div>
+      
+      <div class="summary-card">
+        <div class="summary-icon">
+          <span class="material-icons">mail</span>
+        </div>
+        <div class="summary-content">
+          <div class="summary-number" id="unreadAlerts">0</div>
+          <div class="summary-label">Unread</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Alert Filters -->
+    <div class="alert-filters">
+      <div class="filter-section">
+        <label class="filter-label">Status</label>
+        <div class="filter-chips">
+          <div class="md-chip selected" data-group="status" data-value="all">All</div>
+          <div class="md-chip" data-group="status" data-value="active">Active</div>
+          <div class="md-chip" data-group="status" data-value="triggered">Triggered</div>
+          <div class="md-chip" data-group="status" data-value="disabled">Disabled</div>
+        </div>
+      </div>
+      
+      <div class="filter-section">
+        <label class="filter-label">Priority</label>
+        <div class="filter-chips">
+          <div class="md-chip selected" data-group="priority" data-value="all">All</div>
+          <div class="md-chip" data-group="priority" data-value="golden">Golden</div>
+          <div class="md-chip" data-group="priority" data-value="high">High</div>
+          <div class="md-chip" data-group="priority" data-value="medium">Medium</div>
+          <div class="md-chip" data-group="priority" data-value="low">Low</div>
+        </div>
+      </div>
+      
+      <div class="filter-section">
+        <label class="filter-label">Type</label>
+        <div class="filter-chips">
+          <div class="md-chip selected" data-group="type" data-value="all">All</div>
+          <div class="md-chip" data-group="type" data-value="price">Price</div>
+          <div class="md-chip" data-group="type" data-value="rsi">RSI</div>
+          <div class="md-chip" data-group="type" data-value="volume">Volume</div>
+          <div class="md-chip" data-group="type" data-value="custom">Custom</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Alerts List -->
+    <div class="alerts-section">
+      <div class="md-card">
+        <div class="md-card-content">
+          <div class="section-header">
+            <h2 class="md-title-large">Alert List</h2>
+            <div class="view-controls">
+              <div class="md-chip selected" data-group="view" data-value="list" onclick="setViewMode('list')">
+                <span class="material-icons">view_list</span>
+                List
+              </div>
+              <div class="md-chip" data-group="view" data-value="grid" onclick="setViewMode('grid')">
+                <span class="material-icons">grid_view</span>
+                Grid
+              </div>
+            </div>
+          </div>
+          
+          <div class="alerts-container" id="alertsContainer">
+            <div class="loading-state">
+              <div class="md-progress-circular"></div>
+              <span>Loading alerts...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Alerts Sidebar -->
+  <div class="alerts-sidebar">
+    <!-- Quick Create -->
+    <div class="md-card" style="margin-bottom: 24px;">
+      <div class="md-card-content">
+        <h3 class="md-title-medium" style="margin: 0 0 16px 0;">Quick Create</h3>
+        
+        <div class="quick-create-form">
+          <div class="md-text-field">
+            <input type="text" id="quickSymbol" placeholder=" " autocomplete="off">
+            <label>Symbol</label>
+          </div>
+          
+          <div class="alert-type-selection">
+            <label class="control-label">Alert Type</label>
+            <div class="type-chips">
+              <div class="md-chip selected" data-group="quickType" data-value="price">Price</div>
+              <div class="md-chip" data-group="quickType" data-value="rsi">RSI</div>
+            </div>
+          </div>
+          
+          <div class="md-text-field">
+            <input type="number" id="quickValue" placeholder=" " step="0.01">
+            <label>Target Value</label>
+          </div>
+          
+          <div class="condition-selection">
+            <label class="control-label">Condition</label>
+            <div class="condition-chips">
+              <div class="md-chip selected" data-group="condition" data-value="above">Above</div>
+              <div class="md-chip" data-group="condition" data-value="below">Below</div>
+            </div>
+          </div>
+          
+          <button class="md-filled-button" onclick="createQuickAlert()" style="width: 100%; margin-top: 16px;">
+            <span class="material-icons">add_alert</span>
+            Create Alert
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Alert Templates -->
+    <div class="md-card" style="margin-bottom: 24px;">
+      <div class="md-card-content">
+        <h3 class="md-title-medium" style="margin: 0 0 16px 0;">Templates</h3>
+        
+        <div class="alert-templates" id="alertTemplates">
+          <div class="template-item" onclick="useTemplate('oversold_rsi')">
+            <div class="template-icon">
+              <span class="material-icons">trending_down</span>
+            </div>
+            <div class="template-content">
+              <div class="template-name">Oversold RSI</div>
+              <div class="template-description">RSI below 30</div>
+            </div>
+          </div>
+          
+          <div class="template-item" onclick="useTemplate('overbought_rsi')">
+            <div class="template-icon">
+              <span class="material-icons">trending_up</span>
+            </div>
+            <div class="template-content">
+              <div class="template-name">Overbought RSI</div>
+              <div class="template-description">RSI above 70</div>
+            </div>
+          </div>
+          
+          <div class="template-item" onclick="useTemplate('price_breakout')">
+            <div class="template-icon">
+              <span class="material-icons">show_chart</span>
+            </div>
+            <div class="template-content">
+              <div class="template-name">Price Breakout</div>
+              <div class="template-description">Price above resistance</div>
+            </div>
+          </div>
+          
+          <div class="template-item" onclick="useTemplate('volume_spike')">
+            <div class="template-icon">
+              <span class="material-icons">bar_chart</span>
+            </div>
+            <div class="template-content">
+              <div class="template-name">Volume Spike</div>
+              <div class="template-description">Volume 2x average</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Notification Settings -->
+    <div class="md-card">
+      <div class="md-card-content">
+        <h3 class="md-title-medium" style="margin: 0 0 16px 0;">Notifications</h3>
+        
+        <div class="notification-settings">
+          <div class="setting-item">
+            <div class="setting-content">
+              <div class="setting-label">Email Alerts</div>
+              <div class="setting-description">Send alerts via email</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="emailNotifications" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-content">
+              <div class="setting-label">Push Notifications</div>
+              <div class="setting-description">Browser notifications</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="pushNotifications" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-content">
+              <div class="setting-label">Sound Alerts</div>
+              <div class="setting-description">Play sound on alerts</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="soundAlerts">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-content">
+              <div class="setting-label">Golden Only</div>
+              <div class="setting-description">Only notify for golden alerts</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="goldenOnly">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        
+        <button class="md-outlined-button" onclick="saveNotificationSettings()" style="width: 100%; margin-top: 16px;">
+          <span class="material-icons">save</span>
+          Save Settings
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create Alert Modal -->
+<div class="modal" id="createAlertModal">
+  <div class="modal-backdrop" onclick="closeCreateAlert()"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="md-title-large">Create Alert</h3>
+      <button class="md-icon-button" onclick="closeCreateAlert()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="create-alert-form">
+        <div class="form-row">
+          <div class="md-text-field">
+            <input type="text" id="alertSymbol" placeholder=" " autocomplete="off">
+            <label>Symbol</label>
+          </div>
+          
+          <div class="md-text-field">
+            <input type="text" id="alertName" placeholder=" ">
+            <label>Alert Name</label>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="control-label">Alert Type</label>
+            <div class="alert-type-chips">
+              <div class="md-chip selected" data-group="alertType" data-value="price">Price</div>
+              <div class="md-chip" data-group="alertType" data-value="rsi">RSI</div>
+              <div class="md-chip" data-group="alertType" data-value="volume">Volume</div>
+              <div class="md-chip" data-group="alertType" data-value="custom">Custom</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="control-label">Condition</label>
+            <div class="condition-chips">
+              <div class="md-chip selected" data-group="alertCondition" data-value="above">Above</div>
+              <div class="md-chip" data-group="alertCondition" data-value="below">Below</div>
+              <div class="md-chip" data-group="alertCondition" data-value="crosses_above">Crosses Above</div>
+              <div class="md-chip" data-group="alertCondition" data-value="crosses_below">Crosses Below</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="md-text-field">
+            <input type="number" id="alertValue" placeholder=" " step="0.01">
+            <label>Target Value</label>
+          </div>
+          
+          <div class="form-group">
+            <label class="control-label">Priority</label>
+            <div class="priority-chips">
+              <div class="md-chip" data-group="alertPriority" data-value="golden">Golden</div>
+              <div class="md-chip" data-group="alertPriority" data-value="high">High</div>
+              <div class="md-chip selected" data-group="alertPriority" data-value="medium">Medium</div>
+              <div class="md-chip" data-group="alertPriority" data-value="low">Low</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="md-text-field">
+            <textarea id="alertMessage" placeholder=" " rows="3"></textarea>
+            <label>Custom Message (Optional)</label>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="setting-item">
+            <div class="setting-content">
+              <div class="setting-label">One-time Alert</div>
+              <div class="setting-description">Disable after triggering once</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="oneTimeAlert">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-actions">
+      <button class="md-text-button" onclick="closeCreateAlert()">Cancel</button>
+      <button class="md-filled-button" onclick="saveAlert()">Create Alert</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Alerts page JavaScript
+let alertsData = {
+  alerts: [],
+  filteredAlerts: [],
+  filters: {
+    status: 'all',
+    priority: 'all',
+    type: 'all'
+  },
+  viewMode: 'list',
+  quickAlert: {
+    type: 'price',
+    condition: 'above'
+  },
+  createAlert: {
+    type: 'price',
+    condition: 'above',
+    priority: 'medium'
+  }
+};
+
+// Initialize alerts page
+function initializeAlerts() {
+  console.log('Initializing alerts page...');
+  
+  // Setup event listeners
+  setupAlertsControls();
+  
+  // Load initial data
+  loadAlertsData();
+  
+  // Set up auto-refresh
+  setInterval(loadAlertsData, 30000); // Refresh every 30 seconds
+  
+  // Load notification settings
+  loadNotificationSettings();
+}
+
+// Setup alerts controls
+function setupAlertsControls() {
+  // Filter chips
+  document.addEventListener('chipGroupSelect', (e) => {
+    const group = e.detail.group;
+    const value = e.detail.value;
+    
+    if (group === 'status' || group === 'priority' || group === 'type') {
+      alertsData.filters[group] = value;
+      applyFilters();
+    } else if (group === 'quickType') {
+      alertsData.quickAlert.type = value;
+    } else if (group === 'condition') {
+      alertsData.quickAlert.condition = value;
+    } else if (group === 'alertType') {
+      alertsData.createAlert.type = value;
+    } else if (group === 'alertCondition') {
+      alertsData.createAlert.condition = value;
+    } else if (group === 'alertPriority') {
+      alertsData.createAlert.priority = value;
+    }
+  });
+}
+
+// Load alerts data
+async function loadAlertsData() {
+  try {
+    const response = await fetch('/api/alerts');
+    if (response.ok) {
+      alertsData.alerts = await response.json();
+      applyFilters();
+      updateAlertsSummary();
+    }
+  } catch (error) {
+    console.error('Error loading alerts data:', error);
+    if (window.TradingApp) {
+      window.TradingApp.showSnackbar('Error loading alerts data', 'error');
+    }
+  }
+}
+
+// Apply filters to alerts
+function applyFilters() {
+  let filtered = [...alertsData.alerts];
+  
+  // Apply status filter
+  if (alertsData.filters.status !== 'all') {
+    filtered = filtered.filter(alert => alert.status === alertsData.filters.status);
+  }
+  
+  // Apply priority filter
+  if (alertsData.filters.priority !== 'all') {
+    filtered = filtered.filter(alert => alert.priority === alertsData.filters.priority);
+  }
+  
+  // Apply type filter
+  if (alertsData.filters.type !== 'all') {
+    filtered = filtered.filter(alert => alert.type === alertsData.filters.type);
+  }
+  
+  alertsData.filteredAlerts = filtered;
+  updateAlertsDisplay();
+}
+
+// Update alerts summary
+function updateAlertsSummary() {
+  const activeAlerts = document.getElementById('activeAlerts');
+  const goldenAlerts = document.getElementById('goldenAlerts');
+  const triggeredToday = document.getElementById('triggeredToday');
+  const unreadAlerts = document.getElementById('unreadAlerts');
+  
+  const active = alertsData.alerts.filter(alert => alert.status === 'active').length;
+  const golden = alertsData.alerts.filter(alert => alert.priority === 'golden').length;
+  const unread = alertsData.alerts.filter(alert => !alert.read).length;
+  
+  // Count triggered today
+  const today = new Date().toDateString();
+  const triggered = alertsData.alerts.filter(alert => 
+    alert.triggered_at && new Date(alert.triggered_at * 1000).toDateString() === today
+  ).length;
+  
+  if (activeAlerts) activeAlerts.textContent = active;
+  if (goldenAlerts) goldenAlerts.textContent = golden;
+  if (triggeredToday) triggeredToday.textContent = triggered;
+  if (unreadAlerts) unreadAlerts.textContent = unread;
+}
+
+// Update alerts display
+function updateAlertsDisplay() {
+  const container = document.getElementById('alertsContainer');
+  if (!container) return;
+  
+  if (alertsData.filteredAlerts.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <span class="material-icons">notifications_none</span>
+        <h3>No Alerts Found</h3>
+        <p>No alerts match your current filters.</p>
+        <button class="md-outlined-button" onclick="createAlert()">
+          <span class="material-icons">add_alert</span>
+          Create Alert
+        </button>
+      </div>
+    `;
+    return;
+  }
+  
+  if (alertsData.viewMode === 'grid') {
+    updateAlertsGrid();
+  } else {
+    updateAlertsList();
+  }
+}
+
+// Update alerts list view
+function updateAlertsList() {
+  const container = document.getElementById('alertsContainer');
+  container.className = 'alerts-container list-view';
+  
+  const list = document.createElement('div');
+  list.className = 'alerts-list';
+  
+  // Sort by priority and date
+  const sorted = [...alertsData.filteredAlerts].sort((a, b) => {
+    const priorityOrder = { golden: 4, high: 3, medium: 2, low: 1 };
+    const aPriority = priorityOrder[a.priority] || 0;
+    const bPriority = priorityOrder[b.priority] || 0;
+    
+    if (aPriority !== bPriority) {
+      return bPriority - aPriority;
+    }
+    
+    return (b.created_at || 0) - (a.created_at || 0);
+  });
+  
+  sorted.forEach(alert => {
+    const item = document.createElement('div');
+    item.className = `alert-item ${alert.read ? '' : 'unread'} ${alert.status}`;
+    item.dataset.alertId = alert.id;
+    
+    const priorityClass = alert.priority || 'medium';
+    const statusClass = alert.status || 'active';
+    const typeIcon = getAlertTypeIcon(alert.type);
+    
+    item.innerHTML = `
+      <div class="alert-icon">
+        <span class="material-icons">${typeIcon}</span>
+      </div>
+      
+      <div class="alert-content">
+        <div class="alert-header">
+          <div class="alert-title">${alert.name || `${alert.symbol} ${alert.type} Alert`}</div>
+          <div class="alert-meta">
+            <span class="alert-priority ${priorityClass}">${alert.priority}</span>
+            <span class="alert-status ${statusClass}">${alert.status}</span>
+            <span class="alert-time">${formatAlertTime(alert.created_at)}</span>
+          </div>
+        </div>
+        
+        <div class="alert-details">
+          <div class="alert-condition">
+            ${alert.symbol} ${alert.type} ${alert.condition} ${alert.value}
+          </div>
+          ${alert.message ? `<div class="alert-message">${alert.message}</div>` : ''}
+          ${alert.triggered_at ? `<div class="alert-triggered">Triggered: ${formatAlertTime(alert.triggered_at)}</div>` : ''}
+        </div>
+      </div>
+      
+      <div class="alert-actions">
+        <button class="md-icon-button" onclick="toggleAlert('${alert.id}')" title="${alert.status === 'active' ? 'Disable' : 'Enable'}">
+          <span class="material-icons">${alert.status === 'active' ? 'pause' : 'play_arrow'}</span>
+        </button>
+        
+        <button class="md-icon-button" onclick="editAlert('${alert.id}')" title="Edit">
+          <span class="material-icons">edit</span>
+        </button>
+        
+        <button class="md-icon-button" onclick="deleteAlert('${alert.id}')" title="Delete">
+          <span class="material-icons">delete</span>
+        </button>
+      </div>
+    `;
+    
+    // Mark as read when clicked
+    item.addEventListener('click', (e) => {
+      if (!e.target.closest('.alert-actions')) {
+        markAlertAsRead(alert.id);
+      }
+    });
+    
+    list.appendChild(item);
+  });
+  
+  container.innerHTML = '';
+  container.appendChild(list);
+}
+
+// Update alerts grid view
+function updateAlertsGrid() {
+  const container = document.getElementById('alertsContainer');
+  container.className = 'alerts-container grid-view';
+  
+  const grid = document.createElement('div');
+  grid.className = 'alerts-grid';
+  
+  alertsData.filteredAlerts.forEach(alert => {
+    const card = document.createElement('div');
+    card.className = `alert-card ${alert.read ? '' : 'unread'} ${alert.status}`;
+    card.dataset.alertId = alert.id;
+    
+    const priorityClass = alert.priority || 'medium';
+    const statusClass = alert.status || 'active';
+    const typeIcon = getAlertTypeIcon(alert.type);
+    
+    card.innerHTML = `
+      <div class="alert-card-header">
+        <div class="alert-card-icon">
+          <span class="material-icons">${typeIcon}</span>
+        </div>
+        <div class="alert-card-meta">
+          <span class="alert-priority ${priorityClass}">${alert.priority}</span>
+          <span class="alert-status ${statusClass}">${alert.status}</span>
+        </div>
+      </div>
+      
+      <div class="alert-card-content">
+        <div class="alert-card-title">${alert.name || `${alert.symbol} Alert`}</div>
+        <div class="alert-card-condition">
+          ${alert.symbol} ${alert.type} ${alert.condition} ${alert.value}
+        </div>
+        ${alert.message ? `<div class="alert-card-message">${alert.message}</div>` : ''}
+      </div>
+      
+      <div class="alert-card-footer">
+        <div class="alert-card-time">${formatAlertTime(alert.created_at)}</div>
+        <div class="alert-card-actions">
+          <button class="md-icon-button" onclick="toggleAlert('${alert.id}')">
+            <span class="material-icons">${alert.status === 'active' ? 'pause' : 'play_arrow'}</span>
+          </button>
+          <button class="md-icon-button" onclick="editAlert('${alert.id}')">
+            <span class="material-icons">edit</span>
+          </button>
+          <button class="md-icon-button" onclick="deleteAlert('${alert.id}')">
+            <span class="material-icons">delete</span>
+          </button>
+        </div>
+      </div>
+    `;
+    
+    card.addEventListener('click', (e) => {
+      if (!e.target.closest('.alert-card-actions')) {
+        markAlertAsRead(alert.id);
+      }
+    });
+    
+    grid.appendChild(card);
+  });
+  
+  container.innerHTML = '';
+  container.appendChild(grid);
+}
+
+// Set view mode
+function setViewMode(mode) {
+  alertsData.viewMode = mode;
+  updateAlertsDisplay();
+  
+  // Update view control chips
+  const viewChips = document.querySelectorAll('[data-group="view"]');
+  viewChips.forEach(chip => {
+    chip.classList.toggle('selected', chip.dataset.value === mode);
+  });
+}
+
+// Get alert type icon
+function getAlertTypeIcon(type) {
+  switch (type) {
+    case 'price': return 'attach_money';
+    case 'rsi': return 'show_chart';
+    case 'volume': return 'bar_chart';
+    case 'custom': return 'code';
+    default: return 'notifications';
+  }
+}
+
+// Format alert time
+function formatAlertTime(timestamp) {
+  if (!timestamp) return '--';
+  
+  const date = new Date(timestamp * 1000);
+  const now = new Date();
+  const diff = now - date;
+  
+  if (diff < 60000) { // Less than 1 minute
+    return 'Just now';
+  } else if (diff < 3600000) { // Less than 1 hour
+    return Math.floor(diff / 60000) + 'm ago';
+  } else if (diff < 86400000) { // Less than 1 day
+    return Math.floor(diff / 3600000) + 'h ago';
+  } else {
+    return date.toLocaleDateString();
+  }
+}
+
+// Create quick alert
+function createQuickAlert() {
+  const symbol = document.getElementById('quickSymbol').value.trim().toUpperCase();
+  const value = parseFloat(document.getElementById('quickValue').value);
+  
+  if (!symbol) {
+    window.TradingApp.showSnackbar('Please enter a symbol', 'warning');
+    return;
+  }
+  
+  if (!value || value <= 0) {
+    window.TradingApp.showSnackbar('Please enter a valid target value', 'warning');
+    return;
+  }
+  
+  const alertData = {
+    symbol: symbol,
+    name: `${symbol} ${alertsData.quickAlert.type} ${alertsData.quickAlert.condition} ${value}`,
+    type: alertsData.quickAlert.type,
+    condition: alertsData.quickAlert.condition,
+    value: value,
+    priority: 'medium',
+    status: 'active'
+  };
+  
+  submitAlert(alertData);
+}
+
+// Create alert (open modal)
+function createAlert() {
+  const modal = document.getElementById('createAlertModal');
+  if (modal) {
+    modal.classList.add('open');
+  }
+}
+
+// Close create alert modal
+function closeCreateAlert() {
+  const modal = document.getElementById('createAlertModal');
+  if (modal) {
+    modal.classList.remove('open');
+  }
+  
+  // Reset form
+  document.getElementById('alertSymbol').value = '';
+  document.getElementById('alertName').value = '';
+  document.getElementById('alertValue').value = '';
+  document.getElementById('alertMessage').value = '';
+  document.getElementById('oneTimeAlert').checked = false;
+}
+
+// Save alert from modal
+function saveAlert() {
+  const symbol = document.getElementById('alertSymbol').value.trim().toUpperCase();
+  const name = document.getElementById('alertName').value.trim();
+  const value = parseFloat(document.getElementById('alertValue').value);
+  const message = document.getElementById('alertMessage').value.trim();
+  const oneTime = document.getElementById('oneTimeAlert').checked;
+  
+  if (!symbol) {
+    window.TradingApp.showSnackbar('Please enter a symbol', 'warning');
+    return;
+  }
+  
+  if (!value || value <= 0) {
+    window.TradingApp.showSnackbar('Please enter a valid target value', 'warning');
+    return;
+  }
+  
+  const alertData = {
+    symbol: symbol,
+    name: name || `${symbol} ${alertsData.createAlert.type} Alert`,
+    type: alertsData.createAlert.type,
+    condition: alertsData.createAlert.condition,
+    value: value,
+    priority: alertsData.createAlert.priority,
+    message: message,
+    one_time: oneTime,
+    status: 'active'
+  };
+  
+  submitAlert(alertData);
+  closeCreateAlert();
+}
+
+// Submit alert to API
+async function submitAlert(alertData) {
+  try {
+    const response = await fetch('/api/alerts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(alertData)
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      window.TradingApp.showSnackbar('Alert created successfully', 'success');
+      loadAlertsData();
+      
+      // Clear quick form
+      document.getElementById('quickSymbol').value = '';
+      document.getElementById('quickValue').value = '';
+    } else {
+      window.TradingApp.showSnackbar(`Error: ${result.error}`, 'error');
+    }
+  } catch (error) {
+    console.error('Error creating alert:', error);
+    window.TradingApp.showSnackbar('Error creating alert', 'error');
+  }
+}
+
+// Toggle alert status
+async function toggleAlert(alertId) {
+  try {
+    const response = await fetch(`/api/alerts/${alertId}/toggle`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      window.TradingApp.showSnackbar('Alert status updated', 'success');
+      loadAlertsData();
+    } else {
+      window.TradingApp.showSnackbar(`Error: ${result.error}`, 'error');
+    }
+  } catch (error) {
+    console.error('Error toggling alert:', error);
+    window.TradingApp.showSnackbar('Error updating alert', 'error');
+  }
+}
+
+// Edit alert
+function editAlert(alertId) {
+  const alert = alertsData.alerts.find(a => a.id === alertId);
+  if (!alert) return;
+  
+  // Pre-fill the create alert modal with existing data
+  document.getElementById('alertSymbol').value = alert.symbol;
+  document.getElementById('alertName').value = alert.name || '';
+  document.getElementById('alertValue').value = alert.value;
+  document.getElementById('alertMessage').value = alert.message || '';
+  document.getElementById('oneTimeAlert').checked = alert.one_time || false;
+  
+  // Update chips
+  document.querySelectorAll('[data-group="alertType"]').forEach(chip => {
+    chip.classList.toggle('selected', chip.dataset.value === alert.type);
+  });
+  
+  document.querySelectorAll('[data-group="alertCondition"]').forEach(chip => {
+    chip.classList.toggle('selected', chip.dataset.value === alert.condition);
+  });
+  
+  document.querySelectorAll('[data-group="alertPriority"]').forEach(chip => {
+    chip.classList.toggle('selected', chip.dataset.value === alert.priority);
+  });
+  
+  alertsData.createAlert.type = alert.type;
+  alertsData.createAlert.condition = alert.condition;
+  alertsData.createAlert.priority = alert.priority;
+  
+  createAlert();
+}
+
+// Delete alert
+async function deleteAlert(alertId) {
+  if (!confirm('Are you sure you want to delete this alert?')) return;
+  
+  try {
+    const response = await fetch(`/api/alerts/${alertId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      window.TradingApp.showSnackbar('Alert deleted', 'success');
+      loadAlertsData();
+    } else {
+      window.TradingApp.showSnackbar(`Error: ${result.error}`, 'error');
+    }
+  } catch (error) {
+    console.error('Error deleting alert:', error);
+    window.TradingApp.showSnackbar('Error deleting alert', 'error');
+  }
+}
+
+// Mark alert as read
+async function markAlertAsRead(alertId) {
+  try {
+    const response = await fetch(`/api/alerts/${alertId}/read`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (response.ok) {
+      // Update local data
+      const alert = alertsData.alerts.find(a => a.id === alertId);
+      if (alert) {
+        alert.read = true;
+      }
+      
+      // Update display
+      const alertElement = document.querySelector(`[data-alert-id="${alertId}"]`);
+      if (alertElement) {
+        alertElement.classList.remove('unread');
+      }
+      
+      updateAlertsSummary();
+    }
+  } catch (error) {
+    console.error('Error marking alert as read:', error);
+  }
+}
+
+// Mark all alerts as read
+async function markAllAsRead() {
+  try {
+    const response = await fetch('/api/alerts/mark-all-read', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (response.ok) {
+      window.TradingApp.showSnackbar('All alerts marked as read', 'success');
+      loadAlertsData();
+    }
+  } catch (error) {
+    console.error('Error marking all alerts as read:', error);
+    window.TradingApp.showSnackbar('Error marking alerts as read', 'error');
+  }
+}
+
+// Clear old alerts
+async function clearOldAlerts() {
+  if (!confirm('This will delete all triggered and disabled alerts older than 7 days. Continue?')) return;
+  
+  try {
+    const response = await fetch('/api/alerts/clear-old', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      window.TradingApp.showSnackbar(`Cleared ${result.count} old alerts`, 'success');
+      loadAlertsData();
+    } else {
+      window.TradingApp.showSnackbar(`Error: ${result.error}`, 'error');
+    }
+  } catch (error) {
+    console.error('Error clearing old alerts:', error);
+    window.TradingApp.showSnackbar('Error clearing old alerts', 'error');
+  }
+}
+
+// Use template
+function useTemplate(templateType) {
+  const templates = {
+    oversold_rsi: {
+      type: 'rsi',
+      condition: 'below',
+      value: 30,
+      priority: 'high'
+    },
+    overbought_rsi: {
+      type: 'rsi',
+      condition: 'above',
+      value: 70,
+      priority: 'high'
+    },
+    price_breakout: {
+      type: 'price',
+      condition: 'crosses_above',
+      value: 0,
+      priority: 'medium'
+    },
+    volume_spike: {
+      type: 'volume',
+      condition: 'above',
+      value: 200,
+      priority: 'medium'
+    }
+  };
+  
+  const template = templates[templateType];
+  if (!template) return;
+  
+  // Update quick create form
+  document.querySelectorAll('[data-group="quickType"]').forEach(chip => {
+    chip.classList.toggle('selected', chip.dataset.value === template.type);
+  });
+  
+  document.querySelectorAll('[data-group="condition"]').forEach(chip => {
+    chip.classList.toggle('selected', chip.dataset.value === template.condition);
+  });
+  
+  document.getElementById('quickValue').value = template.value;
+  
+  alertsData.quickAlert.type = template.type;
+  alertsData.quickAlert.condition = template.condition;
+  
+  window.TradingApp.showSnackbar(`Template applied: ${templateType.replace('_', ' ')}`, 'success');
+}
+
+// Load notification settings
+function loadNotificationSettings() {
+  const settings = JSON.parse(localStorage.getItem('notificationSettings') || '{}');
+  
+  document.getElementById('emailNotifications').checked = settings.email !== false;
+  document.getElementById('pushNotifications').checked = settings.push !== false;
+  document.getElementById('soundAlerts').checked = settings.sound === true;
+  document.getElementById('goldenOnly').checked = settings.goldenOnly === true;
+}
+
+// Save notification settings
+function saveNotificationSettings() {
+  const settings = {
+    email: document.getElementById('emailNotifications').checked,
+    push: document.getElementById('pushNotifications').checked,
+    sound: document.getElementById('soundAlerts').checked,
+    goldenOnly: document.getElementById('goldenOnly').checked
+  };
+  
+  localStorage.setItem('notificationSettings', JSON.stringify(settings));
+  
+  // Also send to API
+  fetch('/api/settings/notifications', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(settings)
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      window.TradingApp.showSnackbar('Notification settings saved', 'success');
+    }
+  })
+  .catch(error => {
+    console.error('Error saving notification settings:', error);
+  });
+}
+
+// WebSocket event handlers
+window.updateAlerts = function(alerts) {
+  alertsData.alerts = alerts;
+  applyFilters();
+  updateAlertsSummary();
+};
+
+window.newAlert = function(alert) {
+  // Show notification for new alert
+  if (window.TradingApp) {
+    window.TradingApp.showSnackbar(`New alert: ${alert.name}`, 'info');
+  }
+  
+  // Play sound if enabled
+  const settings = JSON.parse(localStorage.getItem('notificationSettings') || '{}');
+  if (settings.sound && (!settings.goldenOnly || alert.priority === 'golden')) {
+    // Play notification sound
+    const audio = new Audio('/static/sounds/alert.mp3');
+    audio.play().catch(e => console.log('Could not play sound:', e));
+  }
+  
+  // Show browser notification if enabled
+  if (settings.push && 'Notification' in window && Notification.permission === 'granted') {
+    new Notification(`Trading Alert: ${alert.name}`, {
+      body: `${alert.symbol} ${alert.type} ${alert.condition} ${alert.value}`,
+      icon: '/static/icons/alert.png'
+    });
+  }
+  
+  loadAlertsData();
+};
+</script>
+
+<style>
+/* Alerts page specific styles */
+.alerts-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 1200px) {
+  .alerts-layout {
+    grid-template-columns: 1fr 350px;
+  }
+}
+
+.alerts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.alerts-header h1 {
+  margin: 0;
+}
+
+.alerts-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.alert-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.alert-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 20px;
+  background-color: var(--md-sys-color-surface);
+  border-radius: var(--md-sys-shape-corner-medium);
+  border: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.filter-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-label {
+  font-size: 12px;
+  color: var(--md-sys-color-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.alerts-section {
+  margin-bottom: 24px;
+}
+
+.alerts-container.list-view {
+  display: block;
+}
+
+.alerts-container.grid-view {
+  display: block;
+}
+
+.alerts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.alert-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background-color: var(--md-sys-color-surface);
+  border-radius: var(--md-sys-shape-corner-medium);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.alert-item:hover {
+  background-color: var(--md-sys-color-surface-variant);
+}
+
+.alert-item.unread {
+  border-left: 4px solid var(--md-sys-color-primary);
+  background-color: var(--md-sys-color-primary-container);
+}
+
+.alert-item.triggered {
+  border-left: 4px solid var(--trading-color-buy);
+}
+
+.alert-item.disabled {
+  opacity: 0.6;
+}
+
+.alert-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--md-sys-color-primary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--md-sys-color-on-primary-container);
+  flex-shrink: 0;
+}
+
+.alert-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.alert-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.alert-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+}
+
+.alert-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.alert-priority,
+.alert-status {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.alert-priority.golden {
+  background-color: #FFD700;
+  color: #000;
+}
+
+.alert-priority.high {
+  background-color: var(--md-sys-color-error);
+  color: var(--md-sys-color-on-error);
+}
+
+.alert-priority.medium {
+  background-color: var(--md-sys-color-warning);
+  color: var(--md-sys-color-on-warning);
+}
+
+.alert-priority.low {
+  background-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+}
+
+.alert-status.active {
+  background-color: var(--trading-color-buy);
+  color: white;
+}
+
+.alert-status.triggered {
+  background-color: var(--md-sys-color-tertiary);
+  color: var(--md-sys-color-on-tertiary);
+}
+
+.alert-status.disabled {
+  background-color: var(--md-sys-color-outline);
+  color: var(--md-sys-color-on-outline);
+}
+
+.alert-time {
+  font-size: 10px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.alert-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alert-condition {
+  font-size: 14px;
+  color: var(--md-sys-color-on-surface);
+  font-weight: 500;
+}
+
+.alert-message {
+  font-size: 12px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.alert-triggered {
+  font-size: 12px;
+  color: var(--trading-color-buy);
+  font-weight: 500;
+}
+
+.alert-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.alerts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.alert-card {
+  background-color: var(--md-sys-color-surface);
+  border-radius: var(--md-sys-shape-corner-medium);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  padding: 16px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.alert-card:hover {
+  background-color: var(--md-sys-color-surface-variant);
+}
+
+.alert-card.unread {
+  border-left: 4px solid var(--md-sys-color-primary);
+  background-color: var(--md-sys-color-primary-container);
+}
+
+.alert-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.alert-card-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--md-sys-color-primary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.alert-card-meta {
+  display: flex;
+  gap: 4px;
+}
+
+.alert-card-content {
+  margin-bottom: 12px;
+}
+
+.alert-card-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+  margin-bottom: 8px;
+}
+
+.alert-card-condition {
+  font-size: 14px;
+  color: var(--md-sys-color-on-surface);
+  margin-bottom: 4px;
+}
+
+.alert-card-message {
+  font-size: 12px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.alert-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.alert-card-time {
+  font-size: 12px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.alert-card-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.quick-create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.alert-type-selection,
+.condition-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.type-chips,
+.condition-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.alert-templates {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.template-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--md-sys-shape-corner-small);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.template-item:hover {
+  background-color: var(--md-sys-color-surface-variant);
+}
+
+.template-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--md-sys-color-secondary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--md-sys-color-on-secondary-container);
+  flex-shrink: 0;
+}
+
+.template-content {
+  flex: 1;
+}
+
+.template-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+}
+
+.template-description {
+  font-size: 12px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.notification-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.setting-content {
+  flex: 1;
+}
+
+.setting-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+}
+
+.setting-description {
+  font-size: 12px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.create-alert-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-row:last-child {
+  grid-template-columns: 1fr;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.alert-type-chips,
+.condition-chips,
+.priority-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 767px) {
+  .alert-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .alert-filters {
+    padding: 16px;
+  }
+  
+  .filter-chips {
+    gap: 4px;
+  }
+  
+  .alert-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .alert-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .alerts-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .alerts-actions {
+    width: 100%;
+    justify-content: center;
+  }
+}
+</style>
+{% endblock %}
+
+{% block page_init %}
+initializeAlerts();
+{% endblock %}
+

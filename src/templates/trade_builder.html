@@ -1,0 +1,1350 @@
+{% extends "base.html" %}
+
+{% block title %}Trade Builder - Trading Platform{% endblock %}
+
+{% block content %}
+<!-- Trade Builder Layout -->
+<div class="trade-builder-layout">
+  <!-- Main Trade Builder -->
+  <div class="trade-builder-main">
+    <!-- Trade Builder Header -->
+    <div class="trade-builder-header">
+      <h1 class="md-headline-medium">Trade Builder</h1>
+      <div class="builder-actions">
+        <button class="md-outlined-button" onclick="loadTemplate()">
+          <span class="material-icons">folder_open</span>
+          Load Template
+        </button>
+        <button class="md-outlined-button" onclick="saveTemplate()">
+          <span class="material-icons">save</span>
+          Save Template
+        </button>
+        <button class="md-outlined-button" onclick="resetBuilder()">
+          <span class="material-icons">refresh</span>
+          Reset
+        </button>
+      </div>
+    </div>
+    
+    <!-- Trade Configuration -->
+    <div class="trade-config-section">
+      <div class="md-card">
+        <div class="md-card-content">
+          <h2 class="md-title-large" style="margin: 0 0 24px 0;">Trade Configuration</h2>
+          
+          <!-- Symbol Selection -->
+          <div class="config-row">
+            <div class="config-group">
+              <div class="md-text-field">
+                <input type="text" id="symbolInput" placeholder=" " autocomplete="off">
+                <label>Symbol</label>
+              </div>
+              <button class="md-icon-button" onclick="searchSymbol()" title="Search Symbol">
+                <span class="material-icons">search</span>
+              </button>
+            </div>
+            
+            <div class="config-group">
+              <label class="control-label">Security Type</label>
+              <div class="security-type-chips">
+                <div class="md-chip selected" data-group="secType" data-value="STK">Stock</div>
+                <div class="md-chip" data-group="secType" data-value="OPT">Option</div>
+                <div class="md-chip" data-group="secType" data-value="FUT">Future</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Action and Quantity -->
+          <div class="config-row">
+            <div class="config-group">
+              <label class="control-label">Action</label>
+              <div class="action-chips">
+                <div class="md-chip selected" data-group="action" data-value="BUY">
+                  <span class="material-icons">trending_up</span>
+                  Buy
+                </div>
+                <div class="md-chip" data-group="action" data-value="SELL">
+                  <span class="material-icons">trending_down</span>
+                  Sell
+                </div>
+              </div>
+            </div>
+            
+            <div class="config-group">
+              <div class="md-text-field">
+                <input type="number" id="quantityInput" placeholder=" " min="1" value="100">
+                <label>Quantity</label>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Order Type -->
+          <div class="config-row">
+            <div class="config-group">
+              <label class="control-label">Order Type</label>
+              <div class="order-type-chips">
+                <div class="md-chip selected" data-group="orderType" data-value="MKT">Market</div>
+                <div class="md-chip" data-group="orderType" data-value="LMT">Limit</div>
+                <div class="md-chip" data-group="orderType" data-value="STP">Stop</div>
+                <div class="md-chip" data-group="orderType" data-value="STP_LMT">Stop Limit</div>
+              </div>
+            </div>
+            
+            <div class="config-group" id="limitPriceGroup" style="display: none;">
+              <div class="md-text-field">
+                <input type="number" id="limitPriceInput" placeholder=" " step="0.01">
+                <label>Limit Price</label>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Risk Management -->
+          <div class="config-section">
+            <h3 class="md-title-medium">Risk Management</h3>
+            
+            <div class="risk-toggle">
+              <label class="toggle-switch">
+                <input type="checkbox" id="enableRiskManagement">
+                <span class="toggle-slider"></span>
+              </label>
+              <span class="toggle-label">Enable Bracket Orders</span>
+            </div>
+            
+            <div class="risk-controls" id="riskControls" style="display: none;">
+              <div class="config-row">
+                <div class="config-group">
+                  <div class="md-text-field">
+                    <input type="number" id="stopLossInput" placeholder=" " step="0.01">
+                    <label>Stop Loss Price</label>
+                  </div>
+                </div>
+                
+                <div class="config-group">
+                  <div class="md-text-field">
+                    <input type="number" id="takeProfitInput" placeholder=" " step="0.01">
+                    <label>Take Profit Price</label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="config-row">
+                <div class="config-group">
+                  <div class="md-text-field">
+                    <input type="number" id="stopLossPercent" placeholder=" " step="0.1" min="0" max="100">
+                    <label>Stop Loss %</label>
+                  </div>
+                </div>
+                
+                <div class="config-group">
+                  <div class="md-text-field">
+                    <input type="number" id="takeProfitPercent" placeholder=" " step="0.1" min="0" max="1000">
+                    <label>Take Profit %</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Option Chain (for options) -->
+    <div class="option-chain-section" id="optionChainSection" style="display: none;">
+      <div class="md-card">
+        <div class="md-card-content">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h2 class="md-title-large" style="margin: 0;">Option Chain</h2>
+            <button class="md-outlined-button" onclick="loadOptionChain()">
+              <span class="material-icons">refresh</span>
+              Refresh
+            </button>
+          </div>
+          
+          <!-- Expiration Selection -->
+          <div class="expiration-selection">
+            <label class="control-label">Expiration Date</label>
+            <div class="expiration-chips" id="expirationChips">
+              <!-- Populated by JavaScript -->
+            </div>
+          </div>
+          
+          <!-- Option Chain Table -->
+          <div class="option-chain-container" id="optionChainContainer">
+            <div class="loading-state">
+              <div class="md-progress-circular"></div>
+              <span>Loading option chain...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Trade Preview -->
+    <div class="trade-preview-section">
+      <div class="md-card">
+        <div class="md-card-content">
+          <h2 class="md-title-large" style="margin: 0 0 16px 0;">Trade Preview</h2>
+          
+          <div class="preview-grid">
+            <div class="preview-item">
+              <div class="preview-label">Symbol</div>
+              <div class="preview-value" id="previewSymbol">--</div>
+            </div>
+            
+            <div class="preview-item">
+              <div class="preview-label">Action</div>
+              <div class="preview-value" id="previewAction">--</div>
+            </div>
+            
+            <div class="preview-item">
+              <div class="preview-label">Quantity</div>
+              <div class="preview-value" id="previewQuantity">--</div>
+            </div>
+            
+            <div class="preview-item">
+              <div class="preview-label">Order Type</div>
+              <div class="preview-value" id="previewOrderType">--</div>
+            </div>
+            
+            <div class="preview-item">
+              <div class="preview-label">Estimated Cost</div>
+              <div class="preview-value" id="previewCost">--</div>
+            </div>
+            
+            <div class="preview-item">
+              <div class="preview-label">Max Risk</div>
+              <div class="preview-value" id="previewRisk">--</div>
+            </div>
+          </div>
+          
+          <!-- Risk Metrics -->
+          <div class="risk-metrics" id="riskMetrics" style="display: none;">
+            <h3 class="md-title-medium">Risk Analysis</h3>
+            
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-label">Risk/Reward Ratio</div>
+                <div class="metric-value" id="riskRewardRatio">--</div>
+              </div>
+              
+              <div class="metric-card">
+                <div class="metric-label">Breakeven Price</div>
+                <div class="metric-value" id="breakevenPrice">--</div>
+              </div>
+              
+              <div class="metric-card">
+                <div class="metric-label">Portfolio Impact</div>
+                <div class="metric-value" id="portfolioImpact">--</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div class="trade-actions">
+            <button class="md-filled-button" onclick="submitTrade()" id="submitTradeButton">
+              <span class="material-icons">send</span>
+              Submit Trade
+            </button>
+            
+            <button class="md-outlined-button" onclick="validateTrade()">
+              <span class="material-icons">check_circle</span>
+              Validate
+            </button>
+            
+            <button class="md-text-button" onclick="saveDraft()">
+              <span class="material-icons">drafts</span>
+              Save Draft
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Trade Builder Sidebar -->
+  <div class="trade-builder-sidebar">
+    <!-- Market Data -->
+    <div class="md-card" style="margin-bottom: 24px;">
+      <div class="md-card-content">
+        <h3 class="md-title-medium" style="margin: 0 0 16px 0;">Market Data</h3>
+        
+        <div class="market-data-container" id="marketDataContainer">
+          <div class="empty-state-small">
+            <span class="material-icons">show_chart</span>
+            <span>Enter a symbol to view market data</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Recent Trades -->
+    <div class="md-card" style="margin-bottom: 24px;">
+      <div class="md-card-content">
+        <h3 class="md-title-medium" style="margin: 0 0 16px 0;">Recent Trades</h3>
+        
+        <div class="recent-trades" id="recentTrades">
+          <div class="empty-state-small">
+            <span class="material-icons">history</span>
+            <span>No recent trades</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Trade Templates -->
+    <div class="md-card">
+      <div class="md-card-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h3 class="md-title-medium" style="margin: 0;">Templates</h3>
+          <button class="md-icon-button" onclick="createTemplate()" title="Create Template">
+            <span class="material-icons">add</span>
+          </button>
+        </div>
+        
+        <div class="trade-templates" id="tradeTemplates">
+          <!-- Templates will be populated by JavaScript -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Trade Builder JavaScript
+let tradeBuilderData = {
+  symbol: '',
+  secType: 'STK',
+  action: 'BUY',
+  quantity: 100,
+  orderType: 'MKT',
+  limitPrice: null,
+  stopLoss: null,
+  takeProfit: null,
+  enableRiskManagement: false,
+  marketData: {},
+  optionChain: [],
+  selectedOption: null
+};
+
+// Initialize trade builder
+function initializeTradeBuilder() {
+  console.log('Initializing trade builder...');
+  
+  // Setup event listeners
+  setupTradeBuilderControls();
+  
+  // Load URL parameters
+  loadURLParameters();
+  
+  // Load templates
+  loadTradeTemplates();
+  
+  // Load recent trades
+  loadRecentTrades();
+}
+
+// Setup trade builder controls
+function setupTradeBuilderControls() {
+  // Symbol input
+  const symbolInput = document.getElementById('symbolInput');
+  if (symbolInput) {
+    symbolInput.addEventListener('input', debounce((e) => {
+      tradeBuilderData.symbol = e.target.value.toUpperCase();
+      updateTradePreview();
+      if (tradeBuilderData.symbol.length >= 1) {
+        loadMarketData(tradeBuilderData.symbol);
+      }
+    }, 500));
+    
+    symbolInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        searchSymbol();
+      }
+    });
+  }
+  
+  // Quantity input
+  const quantityInput = document.getElementById('quantityInput');
+  if (quantityInput) {
+    quantityInput.addEventListener('input', (e) => {
+      tradeBuilderData.quantity = parseInt(e.target.value) || 0;
+      updateTradePreview();
+    });
+  }
+  
+  // Limit price input
+  const limitPriceInput = document.getElementById('limitPriceInput');
+  if (limitPriceInput) {
+    limitPriceInput.addEventListener('input', (e) => {
+      tradeBuilderData.limitPrice = parseFloat(e.target.value) || null;
+      updateTradePreview();
+    });
+  }
+  
+  // Risk management toggle
+  const riskToggle = document.getElementById('enableRiskManagement');
+  if (riskToggle) {
+    riskToggle.addEventListener('change', (e) => {
+      tradeBuilderData.enableRiskManagement = e.target.checked;
+      toggleRiskControls(e.target.checked);
+      updateTradePreview();
+    });
+  }
+  
+  // Stop loss inputs
+  const stopLossInput = document.getElementById('stopLossInput');
+  const stopLossPercent = document.getElementById('stopLossPercent');
+  
+  if (stopLossInput) {
+    stopLossInput.addEventListener('input', (e) => {
+      tradeBuilderData.stopLoss = parseFloat(e.target.value) || null;
+      updateStopLossPercent();
+      updateTradePreview();
+    });
+  }
+  
+  if (stopLossPercent) {
+    stopLossPercent.addEventListener('input', (e) => {
+      const percent = parseFloat(e.target.value) || 0;
+      updateStopLossFromPercent(percent);
+      updateTradePreview();
+    });
+  }
+  
+  // Take profit inputs
+  const takeProfitInput = document.getElementById('takeProfitInput');
+  const takeProfitPercent = document.getElementById('takeProfitPercent');
+  
+  if (takeProfitInput) {
+    takeProfitInput.addEventListener('input', (e) => {
+      tradeBuilderData.takeProfit = parseFloat(e.target.value) || null;
+      updateTakeProfitPercent();
+      updateTradePreview();
+    });
+  }
+  
+  if (takeProfitPercent) {
+    takeProfitPercent.addEventListener('input', (e) => {
+      const percent = parseFloat(e.target.value) || 0;
+      updateTakeProfitFromPercent(percent);
+      updateTradePreview();
+    });
+  }
+  
+  // Chip group selections
+  document.addEventListener('chipGroupSelect', (e) => {
+    const group = e.detail.group;
+    const value = e.detail.value;
+    
+    if (group === 'secType') {
+      tradeBuilderData.secType = value;
+      toggleOptionChain(value === 'OPT');
+      updateTradePreview();
+    } else if (group === 'action') {
+      tradeBuilderData.action = value;
+      updateTradePreview();
+    } else if (group === 'orderType') {
+      tradeBuilderData.orderType = value;
+      toggleLimitPriceInput(value === 'LMT' || value === 'STP_LMT');
+      updateTradePreview();
+    }
+  });
+}
+
+// Load URL parameters
+function loadURLParameters() {
+  const params = new URLSearchParams(window.location.search);
+  
+  if (params.has('symbol')) {
+    const symbol = params.get('symbol').toUpperCase();
+    tradeBuilderData.symbol = symbol;
+    document.getElementById('symbolInput').value = symbol;
+    loadMarketData(symbol);
+  }
+  
+  if (params.has('action')) {
+    const action = params.get('action').toUpperCase();
+    tradeBuilderData.action = action;
+    
+    // Update action chips
+    document.querySelectorAll('[data-group="action"]').forEach(chip => {
+      chip.classList.toggle('selected', chip.dataset.value === action);
+    });
+  }
+  
+  updateTradePreview();
+}
+
+// Toggle risk controls
+function toggleRiskControls(show) {
+  const riskControls = document.getElementById('riskControls');
+  const riskMetrics = document.getElementById('riskMetrics');
+  
+  if (riskControls) {
+    riskControls.style.display = show ? 'block' : 'none';
+  }
+  
+  if (riskMetrics) {
+    riskMetrics.style.display = show ? 'block' : 'none';
+  }
+}
+
+// Toggle limit price input
+function toggleLimitPriceInput(show) {
+  const limitPriceGroup = document.getElementById('limitPriceGroup');
+  if (limitPriceGroup) {
+    limitPriceGroup.style.display = show ? 'block' : 'none';
+  }
+}
+
+// Toggle option chain
+function toggleOptionChain(show) {
+  const optionChainSection = document.getElementById('optionChainSection');
+  if (optionChainSection) {
+    optionChainSection.style.display = show ? 'block' : 'none';
+    
+    if (show && tradeBuilderData.symbol) {
+      loadOptionChain();
+    }
+  }
+}
+
+// Load market data
+async function loadMarketData(symbol) {
+  try {
+    const response = await fetch(`/api/market-data/${symbol}`);
+    if (response.ok) {
+      tradeBuilderData.marketData = await response.json();
+      updateMarketDataDisplay();
+    }
+  } catch (error) {
+    console.error('Error loading market data:', error);
+  }
+}
+
+// Update market data display
+function updateMarketDataDisplay() {
+  const container = document.getElementById('marketDataContainer');
+  if (!container || !tradeBuilderData.marketData) return;
+  
+  const data = tradeBuilderData.marketData;
+  
+  container.innerHTML = `
+    <div class="market-data-grid">
+      <div class="data-item">
+        <div class="data-label">Last Price</div>
+        <div class="data-value">$${data.last?.toFixed(2) || '--'}</div>
+      </div>
+      
+      <div class="data-item">
+        <div class="data-label">Bid</div>
+        <div class="data-value">$${data.bid?.toFixed(2) || '--'}</div>
+      </div>
+      
+      <div class="data-item">
+        <div class="data-label">Ask</div>
+        <div class="data-value">$${data.ask?.toFixed(2) || '--'}</div>
+      </div>
+      
+      <div class="data-item">
+        <div class="data-label">Volume</div>
+        <div class="data-value">${formatVolume(data.volume)}</div>
+      </div>
+      
+      <div class="data-item">
+        <div class="data-label">Day Change</div>
+        <div class="data-value ${data.change >= 0 ? 'positive' : 'negative'}">
+          ${data.change >= 0 ? '+' : ''}${data.change?.toFixed(2) || '--'}%
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Load option chain
+async function loadOptionChain() {
+  if (!tradeBuilderData.symbol) return;
+  
+  try {
+    const response = await fetch(`/api/options/${tradeBuilderData.symbol}`);
+    if (response.ok) {
+      tradeBuilderData.optionChain = await response.json();
+      updateOptionChainDisplay();
+    }
+  } catch (error) {
+    console.error('Error loading option chain:', error);
+  }
+}
+
+// Update option chain display
+function updateOptionChainDisplay() {
+  // This would display the option chain table
+  // For now, show a placeholder
+  const container = document.getElementById('optionChainContainer');
+  if (container) {
+    container.innerHTML = `
+      <div class="option-chain-placeholder">
+        <span class="material-icons">table_chart</span>
+        <span>Option chain feature coming soon!</span>
+      </div>
+    `;
+  }
+}
+
+// Update trade preview
+function updateTradePreview() {
+  // Update preview values
+  document.getElementById('previewSymbol').textContent = tradeBuilderData.symbol || '--';
+  document.getElementById('previewAction').textContent = tradeBuilderData.action || '--';
+  document.getElementById('previewQuantity').textContent = tradeBuilderData.quantity || '--';
+  document.getElementById('previewOrderType').textContent = tradeBuilderData.orderType || '--';
+  
+  // Calculate estimated cost
+  let estimatedCost = 0;
+  if (tradeBuilderData.marketData && tradeBuilderData.marketData.last) {
+    const price = tradeBuilderData.limitPrice || tradeBuilderData.marketData.last;
+    estimatedCost = price * tradeBuilderData.quantity;
+  }
+  
+  document.getElementById('previewCost').textContent = estimatedCost > 0 ? 
+    window.TradingApp.formatCurrency(estimatedCost) : '--';
+  
+  // Calculate max risk
+  let maxRisk = 0;
+  if (tradeBuilderData.enableRiskManagement && tradeBuilderData.stopLoss && estimatedCost > 0) {
+    const currentPrice = tradeBuilderData.limitPrice || tradeBuilderData.marketData.last;
+    if (currentPrice) {
+      maxRisk = Math.abs(currentPrice - tradeBuilderData.stopLoss) * tradeBuilderData.quantity;
+    }
+  } else {
+    maxRisk = estimatedCost; // Full position risk if no stop loss
+  }
+  
+  document.getElementById('previewRisk').textContent = maxRisk > 0 ? 
+    window.TradingApp.formatCurrency(maxRisk) : '--';
+  
+  // Update risk metrics if enabled
+  if (tradeBuilderData.enableRiskManagement) {
+    updateRiskMetrics();
+  }
+}
+
+// Update risk metrics
+function updateRiskMetrics() {
+  if (!tradeBuilderData.marketData.last) return;
+  
+  const currentPrice = tradeBuilderData.limitPrice || tradeBuilderData.marketData.last;
+  
+  // Risk/Reward Ratio
+  if (tradeBuilderData.stopLoss && tradeBuilderData.takeProfit) {
+    const risk = Math.abs(currentPrice - tradeBuilderData.stopLoss);
+    const reward = Math.abs(tradeBuilderData.takeProfit - currentPrice);
+    const ratio = reward / risk;
+    
+    document.getElementById('riskRewardRatio').textContent = ratio.toFixed(2) + ':1';
+  }
+  
+  // Breakeven Price
+  document.getElementById('breakevenPrice').textContent = 
+    window.TradingApp.formatCurrency(currentPrice);
+  
+  // Portfolio Impact (placeholder)
+  document.getElementById('portfolioImpact').textContent = '2.5%';
+}
+
+// Update stop loss from percentage
+function updateStopLossFromPercent(percent) {
+  if (!tradeBuilderData.marketData.last || !percent) return;
+  
+  const currentPrice = tradeBuilderData.limitPrice || tradeBuilderData.marketData.last;
+  const stopLoss = tradeBuilderData.action === 'BUY' ? 
+    currentPrice * (1 - percent / 100) : 
+    currentPrice * (1 + percent / 100);
+  
+  tradeBuilderData.stopLoss = stopLoss;
+  document.getElementById('stopLossInput').value = stopLoss.toFixed(2);
+}
+
+// Update stop loss percentage
+function updateStopLossPercent() {
+  if (!tradeBuilderData.marketData.last || !tradeBuilderData.stopLoss) return;
+  
+  const currentPrice = tradeBuilderData.limitPrice || tradeBuilderData.marketData.last;
+  const percent = Math.abs((currentPrice - tradeBuilderData.stopLoss) / currentPrice * 100);
+  
+  document.getElementById('stopLossPercent').value = percent.toFixed(1);
+}
+
+// Update take profit from percentage
+function updateTakeProfitFromPercent(percent) {
+  if (!tradeBuilderData.marketData.last || !percent) return;
+  
+  const currentPrice = tradeBuilderData.limitPrice || tradeBuilderData.marketData.last;
+  const takeProfit = tradeBuilderData.action === 'BUY' ? 
+    currentPrice * (1 + percent / 100) : 
+    currentPrice * (1 - percent / 100);
+  
+  tradeBuilderData.takeProfit = takeProfit;
+  document.getElementById('takeProfitInput').value = takeProfit.toFixed(2);
+}
+
+// Update take profit percentage
+function updateTakeProfitPercent() {
+  if (!tradeBuilderData.marketData.last || !tradeBuilderData.takeProfit) return;
+  
+  const currentPrice = tradeBuilderData.limitPrice || tradeBuilderData.marketData.last;
+  const percent = Math.abs((tradeBuilderData.takeProfit - currentPrice) / currentPrice * 100);
+  
+  document.getElementById('takeProfitPercent').value = percent.toFixed(1);
+}
+
+// Search symbol
+function searchSymbol() {
+  const symbol = document.getElementById('symbolInput').value.trim().toUpperCase();
+  if (symbol) {
+    tradeBuilderData.symbol = symbol;
+    loadMarketData(symbol);
+    updateTradePreview();
+    
+    if (tradeBuilderData.secType === 'OPT') {
+      loadOptionChain();
+    }
+  }
+}
+
+// Validate trade
+async function validateTrade() {
+  try {
+    const tradeData = buildTradeData();
+    
+    const response = await fetch('/api/trades/validate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(tradeData)
+    });
+    
+    const result = await response.json();
+    
+    if (result.valid) {
+      window.TradingApp.showSnackbar('Trade validation passed', 'success');
+    } else {
+      window.TradingApp.showSnackbar(`Validation failed: ${result.error}`, 'error');
+    }
+  } catch (error) {
+    console.error('Error validating trade:', error);
+    window.TradingApp.showSnackbar('Error validating trade', 'error');
+  }
+}
+
+// Submit trade
+async function submitTrade() {
+  const submitButton = document.getElementById('submitTradeButton');
+  
+  try {
+    // Validate first
+    const tradeData = buildTradeData();
+    
+    if (!tradeData.symbol) {
+      window.TradingApp.showSnackbar('Please enter a symbol', 'warning');
+      return;
+    }
+    
+    if (!tradeData.quantity || tradeData.quantity <= 0) {
+      window.TradingApp.showSnackbar('Please enter a valid quantity', 'warning');
+      return;
+    }
+    
+    // Show loading
+    if (window.Components) {
+      window.Components.setButtonLoading(submitButton, true);
+    }
+    
+    const response = await fetch('/api/trades/submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(tradeData)
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      window.TradingApp.showSnackbar('Trade submitted successfully', 'success');
+      
+      // Navigate to execution page
+      setTimeout(() => {
+        window.location.href = '/execution';
+      }, 1500);
+    } else {
+      window.TradingApp.showSnackbar(`Trade failed: ${result.error}`, 'error');
+    }
+    
+  } catch (error) {
+    console.error('Error submitting trade:', error);
+    window.TradingApp.showSnackbar('Error submitting trade', 'error');
+  } finally {
+    // Hide loading
+    if (window.Components) {
+      window.Components.setButtonLoading(submitButton, false);
+    }
+  }
+}
+
+// Build trade data object
+function buildTradeData() {
+  const tradeData = {
+    symbol: tradeBuilderData.symbol,
+    action: tradeBuilderData.action,
+    quantity: tradeBuilderData.quantity,
+    order_type: tradeBuilderData.orderType,
+    sec_type: tradeBuilderData.secType
+  };
+  
+  if (tradeBuilderData.limitPrice) {
+    tradeData.limit_price = tradeBuilderData.limitPrice;
+  }
+  
+  if (tradeBuilderData.enableRiskManagement) {
+    if (tradeBuilderData.stopLoss) {
+      tradeData.stop_loss = tradeBuilderData.stopLoss;
+    }
+    
+    if (tradeBuilderData.takeProfit) {
+      tradeData.take_profit = tradeBuilderData.takeProfit;
+    }
+  }
+  
+  return tradeData;
+}
+
+// Save draft
+function saveDraft() {
+  const draft = {
+    ...tradeBuilderData,
+    timestamp: Date.now()
+  };
+  
+  localStorage.setItem('tradeDraft', JSON.stringify(draft));
+  window.TradingApp.showSnackbar('Draft saved', 'success');
+}
+
+// Load draft
+function loadDraft() {
+  const draft = localStorage.getItem('tradeDraft');
+  if (draft) {
+    const data = JSON.parse(draft);
+    
+    // Restore form data
+    Object.assign(tradeBuilderData, data);
+    
+    // Update UI
+    document.getElementById('symbolInput').value = data.symbol || '';
+    document.getElementById('quantityInput').value = data.quantity || 100;
+    
+    if (data.limitPrice) {
+      document.getElementById('limitPriceInput').value = data.limitPrice;
+    }
+    
+    // Update chips
+    document.querySelectorAll('[data-group="secType"]').forEach(chip => {
+      chip.classList.toggle('selected', chip.dataset.value === data.secType);
+    });
+    
+    document.querySelectorAll('[data-group="action"]').forEach(chip => {
+      chip.classList.toggle('selected', chip.dataset.value === data.action);
+    });
+    
+    document.querySelectorAll('[data-group="orderType"]').forEach(chip => {
+      chip.classList.toggle('selected', chip.dataset.value === data.orderType);
+    });
+    
+    updateTradePreview();
+    
+    window.TradingApp.showSnackbar('Draft loaded', 'success');
+  }
+}
+
+// Reset builder
+function resetBuilder() {
+  if (confirm('Are you sure you want to reset the trade builder?')) {
+    // Reset data
+    tradeBuilderData = {
+      symbol: '',
+      secType: 'STK',
+      action: 'BUY',
+      quantity: 100,
+      orderType: 'MKT',
+      limitPrice: null,
+      stopLoss: null,
+      takeProfit: null,
+      enableRiskManagement: false,
+      marketData: {},
+      optionChain: [],
+      selectedOption: null
+    };
+    
+    // Reset form
+    document.getElementById('symbolInput').value = '';
+    document.getElementById('quantityInput').value = '100';
+    document.getElementById('limitPriceInput').value = '';
+    document.getElementById('stopLossInput').value = '';
+    document.getElementById('takeProfitInput').value = '';
+    document.getElementById('stopLossPercent').value = '';
+    document.getElementById('takeProfitPercent').value = '';
+    document.getElementById('enableRiskManagement').checked = false;
+    
+    // Reset chips to defaults
+    document.querySelectorAll('.md-chip').forEach(chip => {
+      chip.classList.remove('selected');
+    });
+    
+    document.querySelector('[data-group="secType"][data-value="STK"]').classList.add('selected');
+    document.querySelector('[data-group="action"][data-value="BUY"]').classList.add('selected');
+    document.querySelector('[data-group="orderType"][data-value="MKT"]').classList.add('selected');
+    
+    // Hide sections
+    toggleRiskControls(false);
+    toggleLimitPriceInput(false);
+    toggleOptionChain(false);
+    
+    // Clear market data
+    document.getElementById('marketDataContainer').innerHTML = `
+      <div class="empty-state-small">
+        <span class="material-icons">show_chart</span>
+        <span>Enter a symbol to view market data</span>
+      </div>
+    `;
+    
+    updateTradePreview();
+    
+    window.TradingApp.showSnackbar('Trade builder reset', 'success');
+  }
+}
+
+// Load trade templates
+function loadTradeTemplates() {
+  // This would load from localStorage or API
+  const templates = JSON.parse(localStorage.getItem('tradeTemplates') || '[]');
+  updateTemplatesDisplay(templates);
+}
+
+// Update templates display
+function updateTemplatesDisplay(templates) {
+  const container = document.getElementById('tradeTemplates');
+  if (!container) return;
+  
+  if (templates.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state-small">
+        <span class="material-icons">bookmark_border</span>
+        <span>No saved templates</span>
+      </div>
+    `;
+    return;
+  }
+  
+  container.innerHTML = '';
+  
+  templates.forEach(template => {
+    const item = document.createElement('div');
+    item.className = 'template-item';
+    item.innerHTML = `
+      <div class="template-content">
+        <div class="template-name">${template.name}</div>
+        <div class="template-details">${template.symbol} - ${template.action}</div>
+      </div>
+      <div class="template-actions">
+        <button class="md-icon-button" onclick="loadTemplate('${template.id}')" title="Load">
+          <span class="material-icons">play_arrow</span>
+        </button>
+        <button class="md-icon-button" onclick="deleteTemplate('${template.id}')" title="Delete">
+          <span class="material-icons">delete</span>
+        </button>
+      </div>
+    `;
+    container.appendChild(item);
+  });
+}
+
+// Load recent trades
+function loadRecentTrades() {
+  // This would load from API
+  // For now, show placeholder
+  const container = document.getElementById('recentTrades');
+  if (container) {
+    container.innerHTML = `
+      <div class="empty-state-small">
+        <span class="material-icons">history</span>
+        <span>No recent trades</span>
+      </div>
+    `;
+  }
+}
+
+// Utility functions
+function formatVolume(volume) {
+  if (!volume) return 'N/A';
+  
+  if (volume >= 1000000) {
+    return (volume / 1000000).toFixed(1) + 'M';
+  } else if (volume >= 1000) {
+    return (volume / 1000).toFixed(1) + 'K';
+  } else {
+    return volume.toString();
+  }
+}
+
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// Template functions (placeholders)
+function loadTemplate(id) {
+  window.TradingApp.showSnackbar('Load template feature coming soon!', 'info');
+}
+
+function saveTemplate() {
+  window.TradingApp.showSnackbar('Save template feature coming soon!', 'info');
+}
+
+function createTemplate() {
+  window.TradingApp.showSnackbar('Create template feature coming soon!', 'info');
+}
+
+function deleteTemplate(id) {
+  window.TradingApp.showSnackbar('Delete template feature coming soon!', 'info');
+}
+</script>
+
+<style>
+/* Trade Builder specific styles */
+.trade-builder-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 1200px) {
+  .trade-builder-layout {
+    grid-template-columns: 1fr 350px;
+  }
+}
+
+.trade-builder-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.trade-builder-header h1 {
+  margin: 0;
+}
+
+.builder-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.trade-config-section,
+.option-chain-section,
+.trade-preview-section {
+  margin-bottom: 24px;
+}
+
+.config-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.config-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.config-group .md-text-field {
+  flex: 1;
+}
+
+.config-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.config-section h3 {
+  margin: 0 0 16px 0;
+}
+
+.security-type-chips,
+.action-chips,
+.order-type-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.risk-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--md-sys-color-outline-variant);
+  transition: 0.3s;
+  border-radius: 24px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+  background-color: var(--md-sys-color-primary);
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(24px);
+}
+
+.toggle-label {
+  font-size: 14px;
+  color: var(--md-sys-color-on-surface);
+}
+
+.risk-controls {
+  margin-top: 16px;
+}
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.preview-item {
+  text-align: center;
+}
+
+.preview-label {
+  font-size: 12px;
+  color: var(--md-sys-color-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.preview-value {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  background-color: var(--md-sys-color-surface-variant);
+  border-radius: var(--md-sys-shape-corner-small);
+  padding: 16px;
+  text-align: center;
+}
+
+.metric-label {
+  font-size: 12px;
+  color: var(--md-sys-color-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.metric-value {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--md-sys-color-primary);
+}
+
+.trade-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.market-data-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.data-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.data-label {
+  font-size: 12px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.data-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+}
+
+.data-value.positive {
+  color: var(--trading-color-profit);
+}
+
+.data-value.negative {
+  color: var(--trading-color-loss);
+}
+
+.template-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.template-item:last-child {
+  border-bottom: none;
+}
+
+.template-content {
+  flex: 1;
+}
+
+.template-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+}
+
+.template-details {
+  font-size: 12px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.template-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.option-chain-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px;
+  color: var(--md-sys-color-on-surface-variant);
+  text-align: center;
+}
+
+.option-chain-placeholder .material-icons {
+  font-size: 48px;
+  opacity: 0.5;
+}
+
+.expiration-selection {
+  margin-bottom: 20px;
+}
+
+.expiration-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+@media (max-width: 767px) {
+  .config-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .preview-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .trade-actions {
+    flex-direction: column;
+  }
+  
+  .market-data-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .builder-actions {
+    width: 100%;
+    justify-content: center;
+  }
+}
+</style>
+{% endblock %}
+
+{% block page_init %}
+initializeTradeBuilder();
+{% endblock %}
+
