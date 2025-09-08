@@ -1,0 +1,50 @@
+# Enhanced Options Trading Platform - Requirements
+# Ali's Lenovo Server Configuration
+
+# Core Flask Framework
+Flask==2.3.3
+Flask-SocketIO==5.3.6
+Flask-CORS==4.0.0
+
+# IBKR Integration
+ib_insync==0.9.86
+
+# Data Processing
+pandas==2.1.1
+numpy==1.24.3
+
+# HTTP Requests
+requests==2.31.0
+
+# Telegram Integration
+python-telegram-bot==20.5
+
+# Mathematical Calculations
+scipy==1.11.3
+
+# Date/Time Handling
+python-dateutil==2.8.2
+
+# JSON Handling (built-in, but explicit for clarity)
+# json (built-in)
+
+# Logging (built-in)
+# logging (built-in)
+
+# Threading (built-in)
+# threading (built-in)
+
+# Time (built-in)
+# time (built-in)
+
+# OS (built-in)
+# os (built-in)
+
+# System (built-in)
+# sys (built-in)
+
+# Additional Dependencies
+eventlet==0.33.3
+python-socketio==5.8.0
+Werkzeug==2.3.7
+

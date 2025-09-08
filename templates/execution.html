@@ -1,0 +1,1519 @@
+{% extends "base.html" %}
+
+{% block title %}Execution - Enhanced Options Trading Platform{% endblock %}
+{% block page_title %}Execution{% endblock %}
+
+{% block content %}
+<!-- IBKR Connection Status -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">IBKR Integration Status</h2>
+        <div class="connection-controls">
+            <button class="btn btn-secondary" onclick="refreshConnection()">
+                <span class="material-icons">refresh</span>
+                Refresh Connection
+            </button>
+            <button class="btn btn-primary" onclick="testConnection()">
+                <span class="material-icons">wifi</span>
+                Test Connection
+            </button>
+        </div>
+    </div>
+    
+    <div class="connection-status">
+        <div class="status-row">
+            <div class="status-item">
+                <span class="material-icons">account_balance</span>
+                <div class="status-details">
+                    <div class="status-label">IBKR Gateway</div>
+                    <div class="status-value" id="ibkr-connection-status">Disconnected from IBKR</div>
+                    <div class="status-info">Port 4002 • Live Trading • Account U4312675</div>
+                </div>
+            </div>
+            
+            <div class="status-item">
+                <span class="material-icons">data_usage</span>
+                <div class="status-details">
+                    <div class="status-label">Market Data</div>
+                    <div class="status-value" id="market-data-status">No Live Data</div>
+                    <div class="status-info">Real-time quotes and options chains</div>
+                </div>
+            </div>
+            
+            <div class="status-item">
+                <span class="material-icons">security</span>
+                <div class="status-details">
+                    <div class="status-label">Trading Mode</div>
+                    <div class="status-value">Read-Only Live Account</div>
+                    <div class="status-info">Orders generated for manual execution</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Account Summary -->
+<div class="grid grid-2">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Account Summary</h2>
+            <div class="account-badge">U4312675</div>
+        </div>
+        
+        <div class="account-metrics">
+            <div class="metric-row">
+                <span class="metric-label">Total Value</span>
+                <span class="metric-value" id="total-value">$125,450</span>
+                <span class="metric-change positive" id="total-change">+2.1%</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Buying Power</span>
+                <span class="metric-value" id="buying-power">$45,230</span>
+                <span class="metric-info">Available for trading</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Day P&L</span>
+                <span class="metric-value positive" id="day-pnl">+$1,245</span>
+                <span class="metric-info">Today's performance</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Unrealized P&L</span>
+                <span class="metric-value positive" id="unrealized-pnl">+$3,456</span>
+                <span class="metric-info">Open positions</span>
+            </div>
+        </div>
+        
+        <button class="btn btn-secondary" onclick="refreshAccountData()">
+            <span class="material-icons">refresh</span>
+            Refresh Account Data
+        </button>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Quick Actions</h2>
+        </div>
+        
+        <div class="quick-actions">
+            <button class="action-btn" onclick="showCreateOrder()">
+                <span class="material-icons">add_circle</span>
+                <div class="action-text">
+                    <div class="action-title">Create Order</div>
+                    <div class="action-subtitle">Manual order entry</div>
+                </div>
+            </button>
+            
+            <button class="action-btn" onclick="showPositions()">
+                <span class="material-icons">pie_chart</span>
+                <div class="action-text">
+                    <div class="action-title">View Positions</div>
+                    <div class="action-subtitle">Current holdings</div>
+                </div>
+            </button>
+            
+            <button class="action-btn" onclick="showOrderHistory()">
+                <span class="material-icons">history</span>
+                <div class="action-text">
+                    <div class="action-title">Order History</div>
+                    <div class="action-subtitle">Past executions</div>
+                </div>
+            </button>
+            
+            <button class="action-btn" onclick="exportData()">
+                <span class="material-icons">download</span>
+                <div class="action-text">
+                    <div class="action-title">Export Data</div>
+                    <div class="action-subtitle">Download reports</div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Order Creation -->
+<div class="card" id="order-creation">
+    <div class="card-header">
+        <h2 class="card-title">Create Order</h2>
+        <div class="order-controls">
+            <button class="btn btn-secondary" onclick="clearOrderForm()">
+                <span class="material-icons">clear</span>
+                Clear Form
+            </button>
+            <button class="btn btn-primary" onclick="previewOrder()">
+                <span class="material-icons">preview</span>
+                Preview Order
+            </button>
+        </div>
+    </div>
+    
+    <div class="order-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Symbol</label>
+                <input type="text" class="form-input" id="order-symbol" placeholder="e.g., AAPL" value="">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Action</label>
+                <select class="form-select" id="order-action">
+                    <option value="BUY">BUY</option>
+                    <option value="SELL">SELL</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Quantity</label>
+                <input type="number" class="form-input" id="order-quantity" placeholder="100" min="1">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Order Type</label>
+                <select class="form-select" id="order-type">
+                    <option value="MKT">Market</option>
+                    <option value="LMT">Limit</option>
+                    <option value="STP">Stop</option>
+                    <option value="STP LMT">Stop Limit</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Limit Price</label>
+                <input type="number" class="form-input" id="limit-price" placeholder="0.00" step="0.01" disabled>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Stop Price</label>
+                <input type="number" class="form-input" id="stop-price" placeholder="0.00" step="0.01" disabled>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Time in Force</label>
+                <select class="form-select" id="time-in-force">
+                    <option value="DAY">Day</option>
+                    <option value="GTC">Good Till Canceled</option>
+                    <option value="IOC">Immediate or Cancel</option>
+                    <option value="FOK">Fill or Kill</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Security Type</label>
+                <select class="form-select" id="security-type">
+                    <option value="STK">Stock</option>
+                    <option value="OPT">Option</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="options-details" id="options-details" style="display: none;">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Strike Price</label>
+                    <input type="number" class="form-input" id="strike-price" placeholder="0.00" step="0.50">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Expiration</label>
+                    <input type="date" class="form-input" id="expiration-date">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Right</label>
+                    <select class="form-select" id="option-right">
+                        <option value="C">Call</option>
+                        <option value="P">Put</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="order-preview" id="order-preview" style="display: none;">
+        <div class="preview-header">
+            <h3>Order Preview</h3>
+            <div class="preview-status" id="preview-status">Ready to Send</div>
+        </div>
+        
+        <div class="preview-details" id="preview-details">
+            <!-- Order preview content will be populated here -->
+        </div>
+        
+        <div class="preview-actions">
+            <button class="btn btn-secondary" onclick="editOrder()">
+                <span class="material-icons">edit</span>
+                Edit Order
+            </button>
+            <button class="btn btn-success" onclick="sendToIBKR()">
+                <span class="material-icons">send</span>
+                Send to IBKR
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Active Orders -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Active Orders</h2>
+        <div class="orders-controls">
+            <button class="btn btn-secondary" onclick="refreshOrders()">
+                <span class="material-icons">refresh</span>
+                Refresh
+            </button>
+            <button class="btn btn-error" onclick="cancelAllOrders()">
+                <span class="material-icons">cancel</span>
+                Cancel All
+            </button>
+        </div>
+    </div>
+    
+    <div class="orders-table-container">
+        <table class="table" id="active-orders-table">
+            <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Action</th>
+                    <th>Quantity</th>
+                    <th>Type</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Time</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="active-orders-body">
+                <tr>
+                    <td>AAPL</td>
+                    <td><span class="action-buy">BUY</span></td>
+                    <td>100</td>
+                    <td>LMT</td>
+                    <td>$175.00</td>
+                    <td><span class="status-pending">PENDING</span></td>
+                    <td>10:30 AM</td>
+                    <td>
+                        <button class="btn-icon" onclick="modifyOrder('AAPL001')" title="Modify">
+                            <span class="material-icons">edit</span>
+                        </button>
+                        <button class="btn-icon btn-error" onclick="cancelOrder('AAPL001')" title="Cancel">
+                            <span class="material-icons">cancel</span>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>TSLA</td>
+                    <td><span class="action-sell">SELL</span></td>
+                    <td>50</td>
+                    <td>MKT</td>
+                    <td>Market</td>
+                    <td><span class="status-filled">FILLED</span></td>
+                    <td>09:45 AM</td>
+                    <td>
+                        <button class="btn-icon" onclick="viewOrderDetails('TSLA001')" title="Details">
+                            <span class="material-icons">info</span>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Current Positions -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Current Positions</h2>
+        <div class="positions-controls">
+            <button class="btn btn-secondary" onclick="refreshPositions()">
+                <span class="material-icons">refresh</span>
+                Refresh
+            </button>
+            <button class="btn btn-primary" onclick="exportPositions()">
+                <span class="material-icons">download</span>
+                Export
+            </button>
+        </div>
+    </div>
+    
+    <div class="positions-grid" id="positions-grid">
+        <div class="position-card">
+            <div class="position-header">
+                <span class="position-symbol">AAPL</span>
+                <span class="position-quantity">+100</span>
+            </div>
+            <div class="position-details">
+                <div class="position-metric">
+                    <span class="metric-label">Avg Cost</span>
+                    <span class="metric-value">$170.50</span>
+                </div>
+                <div class="position-metric">
+                    <span class="metric-label">Market Price</span>
+                    <span class="metric-value">$175.00</span>
+                </div>
+                <div class="position-metric">
+                    <span class="metric-label">Market Value</span>
+                    <span class="metric-value">$17,500</span>
+                </div>
+                <div class="position-metric">
+                    <span class="metric-label">Unrealized P&L</span>
+                    <span class="metric-value positive">+$450</span>
+                </div>
+            </div>
+            <div class="position-actions">
+                <button class="btn btn-sm btn-secondary" onclick="createCloseOrder('AAPL')">
+                    Close Position
+                </button>
+            </div>
+        </div>
+        
+        <div class="position-card">
+            <div class="position-header">
+                <span class="position-symbol">TSLA</span>
+                <span class="position-quantity">+25</span>
+            </div>
+            <div class="position-details">
+                <div class="position-metric">
+                    <span class="metric-label">Avg Cost</span>
+                    <span class="metric-value">$240.00</span>
+                </div>
+                <div class="position-metric">
+                    <span class="metric-label">Market Price</span>
+                    <span class="metric-value">$250.00</span>
+                </div>
+                <div class="position-metric">
+                    <span class="metric-label">Market Value</span>
+                    <span class="metric-value">$6,250</span>
+                </div>
+                <div class="position-metric">
+                    <span class="metric-label">Unrealized P&L</span>
+                    <span class="metric-value positive">+$250</span>
+                </div>
+            </div>
+            <div class="position-actions">
+                <button class="btn btn-sm btn-secondary" onclick="createCloseOrder('TSLA')">
+                    Close Position
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Executions -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Recent Executions</h2>
+        <div class="executions-controls">
+            <select class="filter-select" id="execution-filter">
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+                <option value="all">All Time</option>
+            </select>
+            <button class="btn btn-secondary" onclick="refreshExecutions()">
+                <span class="material-icons">refresh</span>
+                Refresh
+            </button>
+        </div>
+    </div>
+    
+    <div class="executions-table-container">
+        <table class="table" id="executions-table">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Symbol</th>
+                    <th>Action</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Amount</th>
+                    <th>P&L</th>
+                </tr>
+            </thead>
+            <tbody id="executions-body">
+                <tr>
+                    <td>10:15 AM</td>
+                    <td>AAPL</td>
+                    <td><span class="action-buy">BUY</span></td>
+                    <td>100</td>
+                    <td>$174.50</td>
+                    <td>$17,450</td>
+                    <td><span class="pnl-positive">+$50</span></td>
+                </tr>
+                <tr>
+                    <td>09:30 AM</td>
+                    <td>SPY</td>
+                    <td><span class="action-sell">SELL</span></td>
+                    <td>200</td>
+                    <td>$446.25</td>
+                    <td>$89,250</td>
+                    <td><span class="pnl-positive">+$125</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+.connection-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.connection-status {
+    margin-top: 15px;
+}
+
+.status-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.status-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px;
+    background-color: var(--surface-variant);
+    border-radius: 8px;
+}
+
+.status-item .material-icons {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-top: 5px;
+}
+
+.status-details {
+    flex: 1;
+}
+
+.status-label {
+    font-size: 0.9rem;
+    opacity: 0.7;
+    margin-bottom: 5px;
+}
+
+.status-value {
+    font-weight: 500;
+    color: var(--on-surface);
+    margin-bottom: 5px;
+}
+
+.status-info {
+    font-size: 0.8rem;
+    opacity: 0.6;
+}
+
+.account-badge {
+    background-color: var(--primary-color);
+    color: var(--on-primary);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.account-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.metric-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--surface-variant);
+}
+
+.metric-row:last-child {
+    border-bottom: none;
+}
+
+.metric-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.metric-value {
+    font-weight: 500;
+    color: var(--on-surface);
+}
+
+.metric-value.positive {
+    color: var(--success);
+}
+
+.metric-value.negative {
+    color: var(--error);
+}
+
+.metric-change {
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.metric-change.positive {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: var(--success);
+}
+
+.metric-change.negative {
+    background-color: rgba(244, 67, 54, 0.2);
+    color: var(--error);
+}
+
+.metric-info {
+    font-size: 0.8rem;
+    opacity: 0.6;
+}
+
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background-color: var(--surface-variant);
+    border: 1px solid var(--surface-variant);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+}
+
+.action-btn:hover {
+    background-color: var(--primary-color);
+    color: var(--on-primary);
+    border-color: var(--primary-color);
+}
+
+.action-btn .material-icons {
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+.action-btn:hover .material-icons {
+    color: var(--on-primary);
+}
+
+.action-text {
+    flex: 1;
+}
+
+.action-title {
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.action-subtitle {
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+.order-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.order-form {
+    margin-top: 15px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--on-surface);
+}
+
+.form-input,
+.form-select {
+    padding: 10px;
+    border: 1px solid var(--surface-variant);
+    border-radius: 6px;
+    background-color: var(--surface);
+    color: var(--on-surface);
+    font-size: 0.9rem;
+}
+
+.form-input:focus,
+.form-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.form-input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.order-preview {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: var(--surface-variant);
+    border-radius: 8px;
+    border: 1px solid var(--primary-color);
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.preview-status {
+    background-color: var(--success);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.preview-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.orders-controls,
+.positions-controls,
+.executions-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.filter-select {
+    padding: 6px 10px;
+    border: 1px solid var(--surface-variant);
+    border-radius: 6px;
+    background-color: var(--surface);
+    color: var(--on-surface);
+    font-size: 0.85rem;
+}
+
+.orders-table-container,
+.executions-table-container {
+    overflow-x: auto;
+    margin-top: 15px;
+}
+
+.action-buy {
+    color: var(--success);
+    font-weight: 500;
+}
+
+.action-sell {
+    color: var(--error);
+    font-weight: 500;
+}
+
+.status-pending {
+    background-color: rgba(255, 152, 0, 0.2);
+    color: var(--warning);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.status-filled {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: var(--success);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.btn-icon {
+    padding: 6px;
+    border: none;
+    background-color: transparent;
+    color: var(--on-surface);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.btn-icon:hover {
+    background-color: var(--surface-variant);
+}
+
+.btn-icon.btn-error:hover {
+    background-color: var(--error);
+    color: white;
+}
+
+.positions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.position-card {
+    background-color: var(--surface-variant);
+    border-radius: 8px;
+    padding: 15px;
+    border-left: 4px solid var(--success);
+}
+
+.position-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.position-symbol {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.position-quantity {
+    font-weight: 500;
+    color: var(--success);
+}
+
+.position-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.position-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.position-metric .metric-label {
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+.position-metric .metric-value {
+    font-weight: 500;
+    color: var(--on-surface);
+}
+
+.position-metric .metric-value.positive {
+    color: var(--success);
+}
+
+.position-metric .metric-value.negative {
+    color: var(--error);
+}
+
+.position-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+}
+
+.pnl-positive {
+    color: var(--success);
+    font-weight: 500;
+}
+
+.pnl-negative {
+    color: var(--error);
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .status-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .connection-controls,
+    .order-controls,
+    .orders-controls,
+    .positions-controls,
+    .executions-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+    
+    .positions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .preview-actions {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentOrders = [];
+let currentPositions = [];
+let currentExecutions = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeExecution();
+    loadAccountData();
+    loadActiveOrders();
+    loadPositions();
+    loadExecutions();
+    
+    // Set up form handlers
+    setupOrderForm();
+    
+    // Check for orders from URL params
+    checkForGeneratedOrders();
+});
+
+function initializeExecution() {
+    console.log('Execution page initialized for account U4312675');
+    checkIBKRConnection();
+}
+
+function checkIBKRConnection() {
+    fetch('/api/system-status')
+        .then(response => response.json())
+        .then(data => {
+            updateConnectionStatus(data);
+        })
+        .catch(error => {
+            console.error('Error checking IBKR connection:', error);
+            updateConnectionStatus({ ibkr_connected: false, market_data_active: false });
+        });
+}
+
+function updateConnectionStatus(data) {
+    const ibkrStatus = document.getElementById('ibkr-connection-status');
+    const marketDataStatus = document.getElementById('market-data-status');
+    
+    if (data.ibkr_connected) {
+        ibkrStatus.textContent = 'Connected to IBKR Gateway';
+        ibkrStatus.style.color = 'var(--success)';
+    } else {
+        ibkrStatus.textContent = 'Disconnected from IBKR';
+        ibkrStatus.style.color = 'var(--error)';
+    }
+    
+    if (data.market_data_active) {
+        marketDataStatus.textContent = 'Live Market Data Active';
+        marketDataStatus.style.color = 'var(--success)';
+    } else {
+        marketDataStatus.textContent = 'No Live Data';
+        marketDataStatus.style.color = 'var(--error)';
+    }
+}
+
+function refreshConnection() {
+    checkIBKRConnection();
+}
+
+function testConnection() {
+    const button = event.target;
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner" style="width: 16px; height: 16px; margin-right: 8px;"></span>Testing...';
+    
+    fetch('/api/test-connection', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Connection test result:', data);
+            setTimeout(() => {
+                button.disabled = false;
+                button.innerHTML = '<span class="material-icons">wifi</span>Test Connection';
+                checkIBKRConnection();
+            }, 2000);
+        })
+        .catch(error => {
+            console.error('Connection test error:', error);
+            button.disabled = false;
+            button.innerHTML = '<span class="material-icons">wifi</span>Test Connection';
+        });
+}
+
+function loadAccountData() {
+    fetch('/api/account-summary')
+        .then(response => response.json())
+        .then(data => {
+            updateAccountSummary(data);
+        })
+        .catch(error => {
+            console.error('Error loading account data:', error);
+        });
+}
+
+function updateAccountSummary(data) {
+    document.getElementById('total-value').textContent = formatCurrency(data.total_value || 125450);
+    document.getElementById('buying-power').textContent = formatCurrency(data.buying_power || 45230);
+    document.getElementById('day-pnl').textContent = formatCurrency(data.day_pnl || 1245, true);
+    document.getElementById('unrealized-pnl').textContent = formatCurrency(data.unrealized_pnl || 3456, true);
+    
+    // Update change indicators
+    const totalChange = document.getElementById('total-change');
+    if (data.total_change) {
+        totalChange.textContent = `${data.total_change > 0 ? '+' : ''}${data.total_change.toFixed(1)}%`;
+        totalChange.className = `metric-change ${data.total_change > 0 ? 'positive' : 'negative'}`;
+    }
+}
+
+function refreshAccountData() {
+    loadAccountData();
+}
+
+function setupOrderForm() {
+    const orderType = document.getElementById('order-type');
+    const securityType = document.getElementById('security-type');
+    
+    orderType.addEventListener('change', function() {
+        const limitPrice = document.getElementById('limit-price');
+        const stopPrice = document.getElementById('stop-price');
+        
+        limitPrice.disabled = !['LMT', 'STP LMT'].includes(this.value);
+        stopPrice.disabled = !['STP', 'STP LMT'].includes(this.value);
+    });
+    
+    securityType.addEventListener('change', function() {
+        const optionsDetails = document.getElementById('options-details');
+        optionsDetails.style.display = this.value === 'OPT' ? 'block' : 'none';
+    });
+}
+
+function checkForGeneratedOrders() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const ordersParam = urlParams.get('orders');
+    
+    if (ordersParam) {
+        try {
+            const orders = JSON.parse(decodeURIComponent(ordersParam));
+            populateGeneratedOrders(orders);
+        } catch (error) {
+            console.error('Error parsing generated orders:', error);
+        }
+    }
+}
+
+function populateGeneratedOrders(orders) {
+    if (orders && orders.length > 0) {
+        const firstOrder = orders[0];
+        document.getElementById('order-symbol').value = firstOrder.symbol || '';
+        document.getElementById('order-action').value = firstOrder.action || 'BUY';
+        document.getElementById('order-quantity').value = firstOrder.quantity || '';
+        document.getElementById('order-type').value = firstOrder.orderType || 'LMT';
+        
+        if (firstOrder.limitPrice) {
+            document.getElementById('limit-price').value = firstOrder.limitPrice;
+            document.getElementById('limit-price').disabled = false;
+        }
+        
+        // Show order creation section
+        document.getElementById('order-creation').scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+function showCreateOrder() {
+    document.getElementById('order-creation').scrollIntoView({ behavior: 'smooth' });
+}
+
+function showPositions() {
+    document.getElementById('positions-grid').scrollIntoView({ behavior: 'smooth' });
+}
+
+function showOrderHistory() {
+    document.getElementById('executions-table').scrollIntoView({ behavior: 'smooth' });
+}
+
+function exportData() {
+    // Implement data export functionality
+    console.log('Exporting trading data...');
+}
+
+function clearOrderForm() {
+    document.getElementById('order-symbol').value = '';
+    document.getElementById('order-quantity').value = '';
+    document.getElementById('limit-price').value = '';
+    document.getElementById('stop-price').value = '';
+    document.getElementById('strike-price').value = '';
+    document.getElementById('expiration-date').value = '';
+    
+    // Reset selects to default
+    document.getElementById('order-action').value = 'BUY';
+    document.getElementById('order-type').value = 'MKT';
+    document.getElementById('time-in-force').value = 'DAY';
+    document.getElementById('security-type').value = 'STK';
+    document.getElementById('option-right').value = 'C';
+    
+    // Hide options details and preview
+    document.getElementById('options-details').style.display = 'none';
+    document.getElementById('order-preview').style.display = 'none';
+}
+
+function previewOrder() {
+    const orderData = collectOrderData();
+    
+    if (!validateOrderData(orderData)) {
+        return;
+    }
+    
+    // Calculate estimated cost
+    const estimatedCost = calculateEstimatedCost(orderData);
+    
+    // Show preview
+    const preview = document.getElementById('order-preview');
+    const previewDetails = document.getElementById('preview-details');
+    
+    previewDetails.innerHTML = createOrderPreview(orderData, estimatedCost);
+    preview.style.display = 'block';
+    
+    // Scroll to preview
+    preview.scrollIntoView({ behavior: 'smooth' });
+}
+
+function collectOrderData() {
+    return {
+        symbol: document.getElementById('order-symbol').value.toUpperCase(),
+        action: document.getElementById('order-action').value,
+        quantity: parseInt(document.getElementById('order-quantity').value),
+        orderType: document.getElementById('order-type').value,
+        limitPrice: parseFloat(document.getElementById('limit-price').value) || null,
+        stopPrice: parseFloat(document.getElementById('stop-price').value) || null,
+        timeInForce: document.getElementById('time-in-force').value,
+        securityType: document.getElementById('security-type').value,
+        strike: parseFloat(document.getElementById('strike-price').value) || null,
+        expiration: document.getElementById('expiration-date').value || null,
+        right: document.getElementById('option-right').value
+    };
+}
+
+function validateOrderData(data) {
+    if (!data.symbol) {
+        alert('Please enter a symbol');
+        return false;
+    }
+    
+    if (!data.quantity || data.quantity <= 0) {
+        alert('Please enter a valid quantity');
+        return false;
+    }
+    
+    if (data.orderType === 'LMT' && !data.limitPrice) {
+        alert('Please enter a limit price for limit orders');
+        return false;
+    }
+    
+    if (['STP', 'STP LMT'].includes(data.orderType) && !data.stopPrice) {
+        alert('Please enter a stop price for stop orders');
+        return false;
+    }
+    
+    if (data.securityType === 'OPT') {
+        if (!data.strike || !data.expiration) {
+            alert('Please enter strike price and expiration for options');
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+function calculateEstimatedCost(orderData) {
+    // Simple estimation - in real implementation, this would use live market data
+    let estimatedPrice = 100; // Default estimate
+    
+    if (orderData.limitPrice) {
+        estimatedPrice = orderData.limitPrice;
+    }
+    
+    return {
+        estimatedPrice: estimatedPrice,
+        estimatedTotal: estimatedPrice * orderData.quantity,
+        commission: 1.00 // Estimated commission
+    };
+}
+
+function createOrderPreview(orderData, costData) {
+    return `
+        <div class="preview-grid">
+            <div class="preview-section">
+                <h4>Order Details</h4>
+                <div class="preview-item">
+                    <span class="preview-label">Symbol:</span>
+                    <span class="preview-value">${orderData.symbol}</span>
+                </div>
+                <div class="preview-item">
+                    <span class="preview-label">Action:</span>
+                    <span class="preview-value ${orderData.action.toLowerCase()}">${orderData.action}</span>
+                </div>
+                <div class="preview-item">
+                    <span class="preview-label">Quantity:</span>
+                    <span class="preview-value">${orderData.quantity}</span>
+                </div>
+                <div class="preview-item">
+                    <span class="preview-label">Order Type:</span>
+                    <span class="preview-value">${orderData.orderType}</span>
+                </div>
+                ${orderData.limitPrice ? `
+                <div class="preview-item">
+                    <span class="preview-label">Limit Price:</span>
+                    <span class="preview-value">$${orderData.limitPrice.toFixed(2)}</span>
+                </div>
+                ` : ''}
+                ${orderData.stopPrice ? `
+                <div class="preview-item">
+                    <span class="preview-label">Stop Price:</span>
+                    <span class="preview-value">$${orderData.stopPrice.toFixed(2)}</span>
+                </div>
+                ` : ''}
+            </div>
+            
+            <div class="preview-section">
+                <h4>Cost Estimate</h4>
+                <div class="preview-item">
+                    <span class="preview-label">Estimated Price:</span>
+                    <span class="preview-value">$${costData.estimatedPrice.toFixed(2)}</span>
+                </div>
+                <div class="preview-item">
+                    <span class="preview-label">Estimated Total:</span>
+                    <span class="preview-value">$${costData.estimatedTotal.toFixed(2)}</span>
+                </div>
+                <div class="preview-item">
+                    <span class="preview-label">Commission:</span>
+                    <span class="preview-value">$${costData.commission.toFixed(2)}</span>
+                </div>
+                <div class="preview-item total">
+                    <span class="preview-label">Total Cost:</span>
+                    <span class="preview-value">$${(costData.estimatedTotal + costData.commission).toFixed(2)}</span>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function editOrder() {
+    document.getElementById('order-preview').style.display = 'none';
+}
+
+function sendToIBKR() {
+    const orderData = collectOrderData();
+    
+    fetch('/api/create-order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(orderData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Order sent to IBKR successfully!');
+            clearOrderForm();
+            loadActiveOrders();
+        } else {
+            alert('Error sending order: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error sending order:', error);
+        alert('Error sending order to IBKR');
+    });
+}
+
+function loadActiveOrders() {
+    fetch('/api/orders')
+        .then(response => response.json())
+        .then(data => {
+            currentOrders = data.orders || [];
+            updateOrdersTable();
+        })
+        .catch(error => {
+            console.error('Error loading orders:', error);
+        });
+}
+
+function updateOrdersTable() {
+    const tbody = document.getElementById('active-orders-body');
+    
+    if (currentOrders.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" style="text-align: center; opacity: 0.6; padding: 40px;">
+                    No active orders
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = currentOrders.map(order => `
+        <tr>
+            <td>${order.symbol}</td>
+            <td><span class="action-${order.action.toLowerCase()}">${order.action}</span></td>
+            <td>${order.quantity}</td>
+            <td>${order.orderType}</td>
+            <td>${order.price || 'Market'}</td>
+            <td><span class="status-${order.status.toLowerCase()}">${order.status}</span></td>
+            <td>${order.time}</td>
+            <td>
+                ${order.status === 'PENDING' ? `
+                    <button class="btn-icon" onclick="modifyOrder('${order.id}')" title="Modify">
+                        <span class="material-icons">edit</span>
+                    </button>
+                    <button class="btn-icon btn-error" onclick="cancelOrder('${order.id}')" title="Cancel">
+                        <span class="material-icons">cancel</span>
+                    </button>
+                ` : `
+                    <button class="btn-icon" onclick="viewOrderDetails('${order.id}')" title="Details">
+                        <span class="material-icons">info</span>
+                    </button>
+                `}
+            </td>
+        </tr>
+    `).join('');
+}
+
+function refreshOrders() {
+    loadActiveOrders();
+}
+
+function cancelAllOrders() {
+    if (confirm('Are you sure you want to cancel all pending orders?')) {
+        fetch('/api/orders/cancel-all', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Cancel all orders result:', data);
+                loadActiveOrders();
+            })
+            .catch(error => {
+                console.error('Error canceling orders:', error);
+            });
+    }
+}
+
+function modifyOrder(orderId) {
+    console.log('Modify order:', orderId);
+    // Implement order modification
+}
+
+function cancelOrder(orderId) {
+    if (confirm('Are you sure you want to cancel this order?')) {
+        fetch(`/api/orders/${orderId}/cancel`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Cancel order result:', data);
+                loadActiveOrders();
+            })
+            .catch(error => {
+                console.error('Error canceling order:', error);
+            });
+    }
+}
+
+function viewOrderDetails(orderId) {
+    console.log('View order details:', orderId);
+    // Implement order details view
+}
+
+function loadPositions() {
+    fetch('/api/positions')
+        .then(response => response.json())
+        .then(data => {
+            currentPositions = data.positions || [];
+            updatePositionsGrid();
+        })
+        .catch(error => {
+            console.error('Error loading positions:', error);
+        });
+}
+
+function updatePositionsGrid() {
+    const grid = document.getElementById('positions-grid');
+    
+    if (currentPositions.length === 0) {
+        grid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; opacity: 0.6; padding: 40px;">
+                No current positions
+            </div>
+        `;
+        return;
+    }
+    
+    // Keep existing sample positions for now
+    // In real implementation, this would use currentPositions data
+}
+
+function refreshPositions() {
+    loadPositions();
+}
+
+function exportPositions() {
+    console.log('Exporting positions...');
+    // Implement positions export
+}
+
+function createCloseOrder(symbol) {
+    // Pre-fill order form to close position
+    document.getElementById('order-symbol').value = symbol;
+    document.getElementById('order-action').value = 'SELL';
+    
+    // Find position quantity
+    const position = currentPositions.find(p => p.symbol === symbol);
+    if (position) {
+        document.getElementById('order-quantity').value = Math.abs(position.quantity);
+    }
+    
+    document.getElementById('order-type').value = 'MKT';
+    
+    // Scroll to order form
+    document.getElementById('order-creation').scrollIntoView({ behavior: 'smooth' });
+}
+
+function loadExecutions() {
+    const filter = document.getElementById('execution-filter')?.value || 'today';
+    
+    fetch(`/api/executions?filter=${filter}`)
+        .then(response => response.json())
+        .then(data => {
+            currentExecutions = data.executions || [];
+            updateExecutionsTable();
+        })
+        .catch(error => {
+            console.error('Error loading executions:', error);
+        });
+}
+
+function updateExecutionsTable() {
+    const tbody = document.getElementById('executions-body');
+    
+    if (currentExecutions.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align: center; opacity: 0.6; padding: 40px;">
+                    No recent executions
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    // Keep existing sample executions for now
+    // In real implementation, this would use currentExecutions data
+}
+
+function refreshExecutions() {
+    loadExecutions();
+}
+
+function formatCurrency(amount, showSign = false) {
+    const formatted = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(Math.abs(amount));
+    
+    if (showSign && amount !== 0) {
+        return (amount > 0 ? '+' : '-') + formatted;
+    }
+    
+    return formatted;
+}
+
+// Add preview styles
+const previewStyles = `
+<style>
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.preview-section h4 {
+    margin-bottom: 15px;
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.preview-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--surface);
+}
+
+.preview-item:last-child {
+    border-bottom: none;
+}
+
+.preview-item.total {
+    font-weight: 600;
+    border-top: 2px solid var(--primary-color);
+    margin-top: 10px;
+    padding-top: 10px;
+}
+
+.preview-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.preview-value {
+    font-weight: 500;
+    color: var(--on-surface);
+}
+
+.preview-value.buy {
+    color: var(--success);
+}
+
+.preview-value.sell {
+    color: var(--error);
+}
+</style>
+`;
+
+// Add styles to head
+document.head.insertAdjacentHTML('beforeend', previewStyles);
+</script>
+{% endblock %}
+

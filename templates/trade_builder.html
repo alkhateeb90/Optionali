@@ -1,0 +1,1135 @@
+{% extends "base.html" %}
+
+{% block title %}Trade Builder - Enhanced Options Trading Platform{% endblock %}
+{% block page_title %}Trade Builder{% endblock %}
+
+{% block content %}
+<!-- Stock Selection -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Stock Analysis & Options Chain</h2>
+        <div class="stock-info" id="stock-info">
+            <span class="stock-symbol" id="current-symbol">AAPL</span>
+            <span class="stock-price" id="current-price">$175.00</span>
+            <span class="stock-change positive" id="current-change">+1.25%</span>
+        </div>
+    </div>
+    
+    <div class="stock-selection">
+        <div class="input-group">
+            <input type="text" class="stock-input" id="symbol-input" placeholder="Enter stock symbol (e.g., AAPL)" value="AAPL">
+            <button class="btn btn-primary" onclick="analyzeStock()">
+                <span class="material-icons">analytics</span>
+                Analyze Options
+            </button>
+        </div>
+        
+        <div class="quick-symbols">
+            <span class="quick-symbol-label">Quick Select:</span>
+            <button class="quick-symbol" onclick="selectSymbol('AAPL')">AAPL</button>
+            <button class="quick-symbol" onclick="selectSymbol('TSLA')">TSLA</button>
+            <button class="quick-symbol" onclick="selectSymbol('SPY')">SPY</button>
+            <button class="quick-symbol" onclick="selectSymbol('QQQ')">QQQ</button>
+            <button class="quick-symbol" onclick="selectSymbol('NVDA')">NVDA</button>
+        </div>
+    </div>
+</div>
+
+<!-- Strategy Selection -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Strategy Analysis</h2>
+        <div class="strategy-stats" id="strategy-stats">
+            <span class="stat-item">
+                <span class="material-icons">timeline</span>
+                <span>Contracts: <span id="contracts-count">--</span></span>
+            </span>
+            <span class="stat-item">
+                <span class="material-icons">speed</span>
+                <span>IV Rank: <span id="iv-rank">--</span></span>
+            </span>
+        </div>
+    </div>
+    
+    <div class="strategy-tabs">
+        <button class="strategy-tab active" onclick="selectStrategy('long_calls')" id="long-calls-tab">
+            <span class="material-icons">trending_up</span>
+            Long Calls
+        </button>
+        <button class="strategy-tab" onclick="selectStrategy('short_puts')" id="short-puts-tab">
+            <span class="material-icons">trending_down</span>
+            Short Puts
+        </button>
+        <button class="strategy-tab" onclick="selectStrategy('call_spreads')" id="call-spreads-tab">
+            <span class="material-icons">compare_arrows</span>
+            Call Spreads
+        </button>
+        <button class="strategy-tab" onclick="selectStrategy('put_spreads')" id="put-spreads-tab">
+            <span class="material-icons">swap_horiz</span>
+            Put Spreads
+        </button>
+    </div>
+    
+    <div class="strategy-content" id="strategy-content">
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Select a stock to analyze options strategies</p>
+        </div>
+    </div>
+</div>
+
+<!-- Simulation Engine -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Intensive Simulation Engine</h2>
+        <button class="btn btn-primary" onclick="runComprehensiveSimulation()" id="simulate-btn">
+            <span class="material-icons">psychology</span>
+            Run Comprehensive Simulation
+        </button>
+    </div>
+    
+    <div class="simulation-params">
+        <div class="param-group">
+            <label class="param-label">Risk Amount</label>
+            <div class="param-input-group">
+                <span class="param-prefix">$</span>
+                <input type="number" class="param-input" id="risk-amount" value="5000" min="100" max="100000" step="100">
+            </div>
+        </div>
+        
+        <div class="param-group">
+            <label class="param-label">Target Return</label>
+            <div class="param-input-group">
+                <input type="number" class="param-input" id="target-return" value="25" min="5" max="200" step="5">
+                <span class="param-suffix">%</span>
+            </div>
+        </div>
+        
+        <div class="param-group">
+            <label class="param-label">Max Risk</label>
+            <div class="param-input-group">
+                <input type="number" class="param-input" id="max-risk" value="50" min="10" max="100" step="5">
+                <span class="param-suffix">%</span>
+            </div>
+        </div>
+        
+        <div class="param-group">
+            <label class="param-label">Time Horizon</label>
+            <select class="param-select" id="time-horizon">
+                <option value="30">30 Days</option>
+                <option value="60">60 Days</option>
+                <option value="90" selected>90 Days</option>
+                <option value="180">180 Days</option>
+                <option value="365">1 Year</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Expiry Analysis -->
+<div class="card" id="expiry-analysis" style="display: none;">
+    <div class="card-header">
+        <h2 class="card-title">Expiry Period Analysis</h2>
+        <div class="analysis-stats">
+            <span class="stat-badge">
+                <span class="material-icons">casino</span>
+                <span>Monte Carlo: 10,000 iterations</span>
+            </span>
+            <span class="stat-badge">
+                <span class="material-icons">schedule</span>
+                <span>Analysis Time: <span id="analysis-time">--</span></span>
+            </span>
+        </div>
+    </div>
+    
+    <div class="expiry-comparison">
+        <div class="expiry-tabs">
+            <button class="expiry-tab active" onclick="selectExpiry('3M')" id="3m-tab">3 Months</button>
+            <button class="expiry-tab" onclick="selectExpiry('6M')" id="6m-tab">6 Months</button>
+            <button class="expiry-tab" onclick="selectExpiry('9M')" id="9m-tab">9 Months</button>
+            <button class="expiry-tab" onclick="selectExpiry('12M')" id="12m-tab">12 Months</button>
+            <button class="expiry-tab" onclick="selectExpiry('24M')" id="24m-tab">24 Months</button>
+        </div>
+        
+        <div class="expiry-content" id="expiry-content">
+            <div class="expiry-metrics">
+                <div class="metric-card">
+                    <div class="metric-title">Expected Return</div>
+                    <div class="metric-value" id="expected-return">--</div>
+                    <div class="metric-subtitle">Annualized</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Probability of Profit</div>
+                    <div class="metric-value" id="prob-profit">--</div>
+                    <div class="metric-subtitle">Monte Carlo</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Sharpe Ratio</div>
+                    <div class="metric-value" id="sharpe-ratio">--</div>
+                    <div class="metric-subtitle">Risk Adjusted</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Max Drawdown</div>
+                    <div class="metric-value" id="max-drawdown">--</div>
+                    <div class="metric-subtitle">Worst Case</div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="pnl-chart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Portfolio Construction -->
+<div class="card" id="portfolio-construction" style="display: none;">
+    <div class="card-header">
+        <h2 class="card-title">Multi-Tranche Portfolio Construction</h2>
+        <div class="portfolio-stats">
+            <span class="stat-item">
+                <span class="material-icons">pie_chart</span>
+                <span>Total Allocation: <span id="total-allocation">100%</span></span>
+            </span>
+            <span class="stat-item">
+                <span class="material-icons">account_balance</span>
+                <span>Portfolio Value: <span id="portfolio-value">$5,000</span></span>
+            </span>
+        </div>
+    </div>
+    
+    <div class="tranche-allocation">
+        <div class="tranche-item">
+            <div class="tranche-header">
+                <span class="tranche-title">Tranche 1: Conservative</span>
+                <span class="tranche-percentage" id="tranche1-pct">40%</span>
+            </div>
+            <div class="tranche-controls">
+                <input type="range" class="tranche-slider" id="tranche1-slider" min="0" max="100" value="40" onchange="updateTranche(1, this.value)">
+                <div class="tranche-amount" id="tranche1-amount">$2,000</div>
+            </div>
+            <div class="tranche-strategy" id="tranche1-strategy">Long Calls (90 DTE)</div>
+        </div>
+        
+        <div class="tranche-item">
+            <div class="tranche-header">
+                <span class="tranche-title">Tranche 2: Moderate</span>
+                <span class="tranche-percentage" id="tranche2-pct">35%</span>
+            </div>
+            <div class="tranche-controls">
+                <input type="range" class="tranche-slider" id="tranche2-slider" min="0" max="100" value="35" onchange="updateTranche(2, this.value)">
+                <div class="tranche-amount" id="tranche2-amount">$1,750</div>
+            </div>
+            <div class="tranche-strategy" id="tranche2-strategy">Call Spreads (60 DTE)</div>
+        </div>
+        
+        <div class="tranche-item">
+            <div class="tranche-header">
+                <span class="tranche-title">Tranche 3: Aggressive</span>
+                <span class="tranche-percentage" id="tranche3-pct">25%</span>
+            </div>
+            <div class="tranche-controls">
+                <input type="range" class="tranche-slider" id="tranche3-slider" min="0" max="100" value="25" onchange="updateTranche(3, this.value)">
+                <div class="tranche-amount" id="tranche3-amount">$1,250</div>
+            </div>
+            <div class="tranche-strategy" id="tranche3-strategy">Short Puts (30 DTE)</div>
+        </div>
+    </div>
+    
+    <div class="portfolio-summary">
+        <div class="summary-metrics">
+            <div class="summary-item">
+                <span class="summary-label">Expected Portfolio Return</span>
+                <span class="summary-value" id="portfolio-return">+28.5%</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Portfolio Risk Score</span>
+                <span class="summary-value" id="portfolio-risk">6.2/10</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Diversification Score</span>
+                <span class="summary-value" id="diversification-score">8.1/10</span>
+            </div>
+        </div>
+        
+        <button class="btn btn-success" onclick="generateOrders()">
+            <span class="material-icons">receipt_long</span>
+            Generate Orders
+        </button>
+    </div>
+</div>
+
+<style>
+.stock-selection {
+    margin-top: 15px;
+}
+
+.input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.stock-input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid var(--surface-variant);
+    border-radius: 8px;
+    background-color: var(--surface);
+    color: var(--on-surface);
+    font-size: 1rem;
+}
+
+.stock-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.quick-symbols {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.quick-symbol-label {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+.quick-symbol {
+    padding: 6px 12px;
+    border: 1px solid var(--surface-variant);
+    background-color: var(--surface);
+    color: var(--on-surface);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.quick-symbol:hover {
+    background-color: var(--primary-color);
+    color: var(--on-primary);
+    border-color: var(--primary-color);
+}
+
+.stock-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.stock-symbol {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.stock-price {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.stock-change {
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.stock-change.positive {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: var(--success);
+}
+
+.stock-change.negative {
+    background-color: rgba(244, 67, 54, 0.2);
+    color: var(--error);
+}
+
+.strategy-stats {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9rem;
+}
+
+.strategy-tabs {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--surface-variant);
+}
+
+.strategy-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border: none;
+    background-color: transparent;
+    color: var(--on-surface);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 8px 8px 0 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.strategy-tab:hover {
+    background-color: var(--surface-variant);
+}
+
+.strategy-tab.active {
+    background-color: var(--primary-color);
+    color: var(--on-primary);
+}
+
+.strategy-content {
+    min-height: 200px;
+    padding: 20px 0;
+}
+
+.loading-state {
+    text-align: center;
+    padding: 40px;
+    opacity: 0.6;
+}
+
+.simulation-params {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.param-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.param-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--on-surface);
+}
+
+.param-input-group {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--surface-variant);
+    border-radius: 6px;
+    background-color: var(--surface);
+    overflow: hidden;
+}
+
+.param-prefix,
+.param-suffix {
+    padding: 10px 12px;
+    background-color: var(--surface-variant);
+    color: var(--on-surface);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.param-input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background-color: transparent;
+    color: var(--on-surface);
+    font-size: 0.9rem;
+}
+
+.param-input:focus {
+    outline: none;
+}
+
+.param-select {
+    padding: 10px;
+    border: 1px solid var(--surface-variant);
+    border-radius: 6px;
+    background-color: var(--surface);
+    color: var(--on-surface);
+    font-size: 0.9rem;
+}
+
+.analysis-stats {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.stat-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background-color: var(--surface-variant);
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.expiry-tabs {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--surface-variant);
+}
+
+.expiry-tab {
+    padding: 10px 16px;
+    border: none;
+    background-color: transparent;
+    color: var(--on-surface);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 6px 6px 0 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.expiry-tab:hover {
+    background-color: var(--surface-variant);
+}
+
+.expiry-tab.active {
+    background-color: var(--primary-color);
+    color: var(--on-primary);
+}
+
+.expiry-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.metric-card {
+    background-color: var(--surface-variant);
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+}
+
+.metric-title {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-bottom: 8px;
+}
+
+.metric-value {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 4px;
+}
+
+.metric-subtitle {
+    font-size: 0.75rem;
+    opacity: 0.6;
+}
+
+.chart-container {
+    background-color: var(--surface-variant);
+    border-radius: 8px;
+    padding: 20px;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.portfolio-stats {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.tranche-allocation {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.tranche-item {
+    background-color: var(--surface-variant);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.tranche-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.tranche-title {
+    font-weight: 500;
+    color: var(--on-surface);
+}
+
+.tranche-percentage {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.tranche-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.tranche-slider {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background-color: var(--surface);
+    outline: none;
+    cursor: pointer;
+}
+
+.tranche-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    cursor: pointer;
+}
+
+.tranche-amount {
+    font-weight: 500;
+    color: var(--primary-color);
+    min-width: 80px;
+    text-align: right;
+}
+
+.tranche-strategy {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+.portfolio-summary {
+    background-color: var(--surface-variant);
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.summary-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--surface);
+}
+
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+.summary-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.summary-value {
+    font-weight: 500;
+    color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+    .input-group {
+        flex-direction: column;
+    }
+    
+    .stock-info {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    
+    .strategy-tabs {
+        flex-wrap: wrap;
+    }
+    
+    .simulation-params {
+        grid-template-columns: 1fr;
+    }
+    
+    .expiry-tabs {
+        flex-wrap: wrap;
+    }
+    
+    .expiry-metrics {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .analysis-stats,
+    .portfolio-stats {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentSymbol = 'AAPL';
+let currentStrategy = 'long_calls';
+let currentExpiry = '3M';
+let simulationData = {};
+let trancheAllocations = [40, 35, 25];
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeTradeBuilder();
+    loadStockData(currentSymbol);
+});
+
+function initializeTradeBuilder() {
+    console.log('Trade Builder initialized for account U4312675');
+    
+    // Get symbol from URL params if present
+    const urlParams = new URLSearchParams(window.location.search);
+    const symbolParam = urlParams.get('symbol');
+    if (symbolParam) {
+        currentSymbol = symbolParam.toUpperCase();
+        document.getElementById('symbol-input').value = currentSymbol;
+        loadStockData(currentSymbol);
+    }
+}
+
+function selectSymbol(symbol) {
+    currentSymbol = symbol;
+    document.getElementById('symbol-input').value = symbol;
+    loadStockData(symbol);
+}
+
+function analyzeStock() {
+    const symbol = document.getElementById('symbol-input').value.toUpperCase();
+    if (symbol) {
+        currentSymbol = symbol;
+        loadStockData(symbol);
+    }
+}
+
+function loadStockData(symbol) {
+    // Update UI
+    updateStockInfo(symbol, 'Loading...');
+    
+    // Load stock quote
+    fetch(`/api/stock-quote/${symbol}`)
+        .then(response => response.json())
+        .then(data => {
+            updateStockInfo(symbol, data.price, data.change);
+            loadOptionsChain(symbol);
+        })
+        .catch(error => {
+            console.error('Error loading stock data:', error);
+            updateStockInfo(symbol, 'Error', '--');
+        });
+}
+
+function updateStockInfo(symbol, price, change) {
+    document.getElementById('current-symbol').textContent = symbol;
+    document.getElementById('current-price').textContent = typeof price === 'number' ? `$${price.toFixed(2)}` : price;
+    
+    if (change && change !== '--') {
+        const changeElement = document.getElementById('current-change');
+        changeElement.textContent = change;
+        changeElement.className = `stock-change ${change.startsWith('+') ? 'positive' : 'negative'}`;
+    }
+}
+
+function loadOptionsChain(symbol) {
+    fetch(`/api/options-analysis/${symbol}`)
+        .then(response => response.json())
+        .then(data => {
+            updateOptionsData(data);
+            loadStrategyContent(currentStrategy, data);
+        })
+        .catch(error => {
+            console.error('Error loading options chain:', error);
+            showStrategyError();
+        });
+}
+
+function updateOptionsData(data) {
+    document.getElementById('contracts-count').textContent = data.total_contracts || '--';
+    document.getElementById('iv-rank').textContent = data.iv_rank ? `${data.iv_rank}%` : '--';
+}
+
+function selectStrategy(strategy) {
+    currentStrategy = strategy;
+    
+    // Update tab appearance
+    document.querySelectorAll('.strategy-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.getElementById(`${strategy.replace('_', '-')}-tab`).classList.add('active');
+    
+    // Load strategy content
+    loadStrategyContent(strategy);
+}
+
+function loadStrategyContent(strategy, optionsData = null) {
+    const content = document.getElementById('strategy-content');
+    
+    if (!optionsData) {
+        content.innerHTML = `
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Loading ${strategy.replace('_', ' ')} analysis...</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const strategies = optionsData.strategies || {};
+    const strategyData = strategies[strategy];
+    
+    if (!strategyData) {
+        showStrategyError();
+        return;
+    }
+    
+    content.innerHTML = createStrategyContent(strategy, strategyData);
+}
+
+function createStrategyContent(strategy, data) {
+    const contracts = data.contracts || [];
+    
+    return `
+        <div class="strategy-analysis">
+            <div class="strategy-summary">
+                <div class="summary-metrics">
+                    <div class="metric-item">
+                        <span class="metric-label">Best Score</span>
+                        <span class="metric-value">${data.best_score || '--'}</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Expected Return</span>
+                        <span class="metric-value">${data.expected_return || '--'}%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Probability of Profit</span>
+                        <span class="metric-value">${data.prob_profit || '--'}%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Max Risk</span>
+                        <span class="metric-value">$${data.max_risk || '--'}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contracts-grid">
+                ${contracts.slice(0, 3).map(contract => createContractCard(contract)).join('')}
+            </div>
+        </div>
+    `;
+}
+
+function createContractCard(contract) {
+    return `
+        <div class="contract-card">
+            <div class="contract-header">
+                <span class="contract-strike">$${contract.strike}</span>
+                <span class="contract-expiry">${contract.expiry}</span>
+            </div>
+            <div class="contract-metrics">
+                <div class="contract-metric">
+                    <span class="metric-label">Premium</span>
+                    <span class="metric-value">$${contract.premium}</span>
+                </div>
+                <div class="contract-metric">
+                    <span class="metric-label">Delta</span>
+                    <span class="metric-value">${contract.delta}</span>
+                </div>
+                <div class="contract-metric">
+                    <span class="metric-label">IV</span>
+                    <span class="metric-value">${contract.iv}%</span>
+                </div>
+                <div class="contract-metric">
+                    <span class="metric-label">Score</span>
+                    <span class="metric-value">${contract.score}</span>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="selectContract('${contract.id}')">
+                Select Contract
+            </button>
+        </div>
+    `;
+}
+
+function showStrategyError() {
+    document.getElementById('strategy-content').innerHTML = `
+        <div class="error-state">
+            <span class="material-icons">error</span>
+            <h3>Analysis Error</h3>
+            <p>Unable to analyze options for this strategy</p>
+            <button class="btn btn-secondary" onclick="loadStockData(currentSymbol)">
+                Retry Analysis
+            </button>
+        </div>
+    `;
+}
+
+function runComprehensiveSimulation() {
+    const button = document.getElementById('simulate-btn');
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner" style="width: 16px; height: 16px; margin-right: 8px;"></span>Running Simulation...';
+    
+    const params = {
+        symbol: currentSymbol,
+        strategy: currentStrategy,
+        risk_amount: parseInt(document.getElementById('risk-amount').value),
+        target_return: parseInt(document.getElementById('target-return').value),
+        max_risk: parseInt(document.getElementById('max-risk').value),
+        time_horizon: parseInt(document.getElementById('time-horizon').value)
+    };
+    
+    fetch('/api/simulation', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(params)
+    })
+    .then(response => response.json())
+    .then(data => {
+        simulationData = data;
+        showSimulationResults(data);
+        button.disabled = false;
+        button.innerHTML = '<span class="material-icons">psychology</span>Run Comprehensive Simulation';
+    })
+    .catch(error => {
+        console.error('Simulation error:', error);
+        button.disabled = false;
+        button.innerHTML = '<span class="material-icons">psychology</span>Run Comprehensive Simulation';
+    });
+}
+
+function showSimulationResults(data) {
+    // Show expiry analysis
+    document.getElementById('expiry-analysis').style.display = 'block';
+    document.getElementById('portfolio-construction').style.display = 'block';
+    
+    // Update analysis time
+    document.getElementById('analysis-time').textContent = `${data.analysis_time || 0.5}s`;
+    
+    // Load first expiry data
+    selectExpiry('3M');
+    
+    // Scroll to results
+    document.getElementById('expiry-analysis').scrollIntoView({ behavior: 'smooth' });
+}
+
+function selectExpiry(expiry) {
+    currentExpiry = expiry;
+    
+    // Update tab appearance
+    document.querySelectorAll('.expiry-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.getElementById(`${expiry.toLowerCase()}-tab`).classList.add('active');
+    
+    // Update metrics
+    const expiryData = simulationData.expiry_analysis?.[expiry] || {};
+    
+    document.getElementById('expected-return').textContent = `${expiryData.expected_return || '--'}%`;
+    document.getElementById('prob-profit').textContent = `${expiryData.prob_profit || '--'}%`;
+    document.getElementById('sharpe-ratio').textContent = expiryData.sharpe_ratio || '--';
+    document.getElementById('max-drawdown').textContent = `${expiryData.max_drawdown || '--'}%`;
+    
+    // Update chart
+    updatePnLChart(expiryData);
+}
+
+function updatePnLChart(data) {
+    const canvas = document.getElementById('pnl-chart');
+    const ctx = canvas.getContext('2d');
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Simple placeholder chart
+    ctx.fillStyle = 'var(--primary-color)';
+    ctx.font = '16px Roboto';
+    ctx.textAlign = 'center';
+    ctx.fillText('P&L Distribution Chart', canvas.width / 2, canvas.height / 2);
+    ctx.fillText('(Chart.js integration)', canvas.width / 2, canvas.height / 2 + 25);
+}
+
+function updateTranche(trancheNum, value) {
+    trancheAllocations[trancheNum - 1] = parseInt(value);
+    
+    // Normalize allocations to 100%
+    const total = trancheAllocations.reduce((sum, val) => sum + val, 0);
+    if (total !== 100) {
+        // Adjust other tranches proportionally
+        const adjustment = (100 - parseInt(value)) / (total - parseInt(value));
+        for (let i = 0; i < 3; i++) {
+            if (i !== trancheNum - 1) {
+                trancheAllocations[i] = Math.round(trancheAllocations[i] * adjustment);
+            }
+        }
+    }
+    
+    // Update UI
+    updateTrancheUI();
+}
+
+function updateTrancheUI() {
+    const riskAmount = parseInt(document.getElementById('risk-amount').value);
+    
+    for (let i = 1; i <= 3; i++) {
+        const percentage = trancheAllocations[i - 1];
+        const amount = Math.round(riskAmount * percentage / 100);
+        
+        document.getElementById(`tranche${i}-pct`).textContent = `${percentage}%`;
+        document.getElementById(`tranche${i}-slider`).value = percentage;
+        document.getElementById(`tranche${i}-amount`).textContent = `$${amount.toLocaleString()}`;
+    }
+    
+    // Update total allocation
+    const totalAllocation = trancheAllocations.reduce((sum, val) => sum + val, 0);
+    document.getElementById('total-allocation').textContent = `${totalAllocation}%`;
+    document.getElementById('portfolio-value').textContent = `$${riskAmount.toLocaleString()}`;
+}
+
+function selectContract(contractId) {
+    console.log('Selected contract:', contractId);
+    // Implement contract selection logic
+}
+
+function generateOrders() {
+    const orderData = {
+        symbol: currentSymbol,
+        strategy: currentStrategy,
+        expiry: currentExpiry,
+        tranches: trancheAllocations.map((pct, index) => ({
+            percentage: pct,
+            amount: Math.round(parseInt(document.getElementById('risk-amount').value) * pct / 100),
+            strategy: ['Conservative', 'Moderate', 'Aggressive'][index]
+        }))
+    };
+    
+    fetch('/api/generate-orders', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(orderData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Orders generated:', data);
+        // Navigate to execution page
+        window.location.href = '/execution?orders=' + encodeURIComponent(JSON.stringify(data.orders));
+    })
+    .catch(error => {
+        console.error('Error generating orders:', error);
+    });
+}
+
+// Add contract card styles
+const contractStyles = `
+<style>
+.contracts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.contract-card {
+    background-color: var(--surface-variant);
+    border-radius: 8px;
+    padding: 15px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.contract-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.contract-strike {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.contract-expiry {
+    font-size: 0.85rem;
+    opacity: 0.7;
+}
+
+.contract-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.contract-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.contract-metric .metric-label {
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+.contract-metric .metric-value {
+    font-weight: 500;
+    color: var(--on-surface);
+}
+
+.error-state {
+    text-align: center;
+    padding: 40px;
+    opacity: 0.6;
+}
+
+.error-state .material-icons {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    color: var(--error);
+}
+</style>
+`;
+
+// Add styles to head
+document.head.insertAdjacentHTML('beforeend', contractStyles);
+</script>
+{% endblock %}
+

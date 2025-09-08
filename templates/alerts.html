@@ -1,0 +1,1383 @@
+{% extends "base.html" %}
+
+{% block title %}Alerts - Enhanced Options Trading Platform{% endblock %}
+{% block page_title %}Alerts{% endblock %}
+
+{% block content %}
+<!-- Telegram Integration Status -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Telegram Integration</h2>
+        <div class="telegram-controls">
+            <button class="btn btn-secondary" onclick="testTelegramConnection()">
+                <span class="material-icons">wifi</span>
+                Test Connection
+            </button>
+            <button class="btn btn-primary" onclick="sendTestAlert()">
+                <span class="material-icons">send</span>
+                Send Test Alert
+            </button>
+        </div>
+    </div>
+    
+    <div class="telegram-status">
+        <div class="status-row">
+            <div class="status-item">
+                <span class="material-icons">smart_toy</span>
+                <div class="status-details">
+                    <div class="status-label">Telegram Bot</div>
+                    <div class="status-value" id="bot-status">@alialkhtateebtradingbot - Active</div>
+                    <div class="status-info">Ready to send alerts to Ali (938948925)</div>
+                </div>
+            </div>
+            
+            <div class="status-item">
+                <span class="material-icons">notifications</span>
+                <div class="status-details">
+                    <div class="status-label">Alert System</div>
+                    <div class="status-value" id="alert-system-status">Operational</div>
+                    <div class="status-info">Background monitoring active</div>
+                </div>
+            </div>
+            
+            <div class="status-item">
+                <span class="material-icons">attach_money</span>
+                <div class="status-details">
+                    <div class="status-label">Cost Tracking</div>
+                    <div class="status-value" id="cost-status">$0.00 total cost</div>
+                    <div class="status-info">$0.01 per alert • 100% success rate</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="telegram-setup">
+        <div class="setup-info">
+            <h3>Setup Instructions</h3>
+            <ol>
+                <li>Open Telegram and search for <strong>@alialkhtateebtradingbot</strong></li>
+                <li>Send <code>/start</code> to activate the bot</li>
+                <li>Your Chat ID is: <strong>938948925</strong></li>
+                <li>Test the connection using the button above</li>
+            </ol>
+        </div>
+    </div>
+</div>
+
+<!-- Alert Creation -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Create Alert</h2>
+        <div class="alert-controls">
+            <button class="btn btn-secondary" onclick="clearAlertForm()">
+                <span class="material-icons">clear</span>
+                Clear Form
+            </button>
+            <button class="btn btn-primary" onclick="previewAlert()">
+                <span class="material-icons">preview</span>
+                Preview Alert
+            </button>
+        </div>
+    </div>
+    
+    <div class="alert-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Alert Type</label>
+                <select class="form-select" id="alert-type">
+                    <option value="golden_opportunity">Golden Opportunity</option>
+                    <option value="price_target">Price Target</option>
+                    <option value="technical_signal">Technical Signal</option>
+                    <option value="earnings_alert">Earnings Alert</option>
+                    <option value="system_status">System Status</option>
+                    <option value="risk_warning">Risk Warning</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Priority Level</label>
+                <select class="form-select" id="alert-priority">
+                    <option value="critical">Critical (Immediate)</option>
+                    <option value="high">High (1 minute delay)</option>
+                    <option value="medium">Medium (5 minute delay)</option>
+                    <option value="low">Low (15 minute delay)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Symbol (Optional)</label>
+                <input type="text" class="form-input" id="alert-symbol" placeholder="e.g., AAPL">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Trigger Condition</label>
+                <select class="form-select" id="trigger-condition">
+                    <option value="immediate">Immediate</option>
+                    <option value="price_above">Price Above</option>
+                    <option value="price_below">Price Below</option>
+                    <option value="volume_spike">Volume Spike</option>
+                    <option value="rsi_oversold">RSI Oversold</option>
+                    <option value="rsi_overbought">RSI Overbought</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-row" id="trigger-value-row" style="display: none;">
+            <div class="form-group">
+                <label class="form-label" id="trigger-value-label">Trigger Value</label>
+                <input type="number" class="form-input" id="trigger-value" placeholder="0.00" step="0.01">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Custom Message</label>
+            <textarea class="form-textarea" id="alert-message" rows="4" placeholder="Enter your custom alert message..."></textarea>
+        </div>
+        
+        <div class="form-actions">
+            <button class="btn btn-success" onclick="createAlert()">
+                <span class="material-icons">add_alert</span>
+                Create Alert
+            </button>
+        </div>
+    </div>
+    
+    <div class="alert-preview" id="alert-preview" style="display: none;">
+        <div class="preview-header">
+            <h3>Alert Preview</h3>
+            <div class="preview-badge" id="preview-priority">CRITICAL</div>
+        </div>
+        
+        <div class="preview-message" id="preview-message">
+            <!-- Preview content will be populated here -->
+        </div>
+        
+        <div class="preview-actions">
+            <button class="btn btn-secondary" onclick="editAlert()">
+                <span class="material-icons">edit</span>
+                Edit Alert
+            </button>
+            <button class="btn btn-success" onclick="confirmCreateAlert()">
+                <span class="material-icons">send</span>
+                Create Alert
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Active Alerts -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Active Alerts</h2>
+        <div class="alerts-controls">
+            <select class="filter-select" id="alerts-filter">
+                <option value="all">All Alerts</option>
+                <option value="active">Active Only</option>
+                <option value="triggered">Triggered</option>
+                <option value="paused">Paused</option>
+            </select>
+            <button class="btn btn-secondary" onclick="refreshAlerts()">
+                <span class="material-icons">refresh</span>
+                Refresh
+            </button>
+        </div>
+    </div>
+    
+    <div class="alerts-grid" id="alerts-grid">
+        <div class="alert-card active">
+            <div class="alert-header">
+                <div class="alert-type-badge golden">Golden Opportunity</div>
+                <div class="alert-status active">ACTIVE</div>
+            </div>
+            
+            <div class="alert-details">
+                <div class="alert-symbol">AAPL</div>
+                <div class="alert-condition">Price above $175.00</div>
+                <div class="alert-message">High-probability long call setup detected. RSI oversold with strong momentum building.</div>
+            </div>
+            
+            <div class="alert-meta">
+                <div class="alert-priority critical">Critical Priority</div>
+                <div class="alert-created">Created: 2 hours ago</div>
+            </div>
+            
+            <div class="alert-actions">
+                <button class="btn-icon" onclick="editAlert('alert1')" title="Edit">
+                    <span class="material-icons">edit</span>
+                </button>
+                <button class="btn-icon" onclick="pauseAlert('alert1')" title="Pause">
+                    <span class="material-icons">pause</span>
+                </button>
+                <button class="btn-icon btn-error" onclick="deleteAlert('alert1')" title="Delete">
+                    <span class="material-icons">delete</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="alert-card triggered">
+            <div class="alert-header">
+                <div class="alert-type-badge volume">Volume Spike</div>
+                <div class="alert-status triggered">TRIGGERED</div>
+            </div>
+            
+            <div class="alert-details">
+                <div class="alert-symbol">TSLA</div>
+                <div class="alert-condition">Volume > 50M shares</div>
+                <div class="alert-message">Unusual volume detected. Current volume: 75M shares (+150% above average).</div>
+            </div>
+            
+            <div class="alert-meta">
+                <div class="alert-priority high">High Priority</div>
+                <div class="alert-triggered">Triggered: 30 minutes ago</div>
+            </div>
+            
+            <div class="alert-actions">
+                <button class="btn-icon" onclick="viewAlertHistory('alert2')" title="History">
+                    <span class="material-icons">history</span>
+                </button>
+                <button class="btn-icon btn-error" onclick="deleteAlert('alert2')" title="Delete">
+                    <span class="material-icons">delete</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="alert-card paused">
+            <div class="alert-header">
+                <div class="alert-type-badge technical">Technical Signal</div>
+                <div class="alert-status paused">PAUSED</div>
+            </div>
+            
+            <div class="alert-details">
+                <div class="alert-symbol">SPY</div>
+                <div class="alert-condition">RSI < 30</div>
+                <div class="alert-message">RSI oversold condition for broad market ETF. Potential bounce opportunity.</div>
+            </div>
+            
+            <div class="alert-meta">
+                <div class="alert-priority medium">Medium Priority</div>
+                <div class="alert-created">Created: 1 day ago</div>
+            </div>
+            
+            <div class="alert-actions">
+                <button class="btn-icon" onclick="resumeAlert('alert3')" title="Resume">
+                    <span class="material-icons">play_arrow</span>
+                </button>
+                <button class="btn-icon" onclick="editAlert('alert3')" title="Edit">
+                    <span class="material-icons">edit</span>
+                </button>
+                <button class="btn-icon btn-error" onclick="deleteAlert('alert3')" title="Delete">
+                    <span class="material-icons">delete</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alert Templates -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Alert Templates</h2>
+        <div class="templates-controls">
+            <button class="btn btn-primary" onclick="createTemplate()">
+                <span class="material-icons">add</span>
+                Create Template
+            </button>
+        </div>
+    </div>
+    
+    <div class="templates-grid">
+        <div class="template-card" onclick="useTemplate('golden_opportunity')">
+            <div class="template-icon">🏆</div>
+            <div class="template-details">
+                <div class="template-name">Golden Opportunity</div>
+                <div class="template-description">High-probability trading setup with detailed analysis</div>
+            </div>
+            <div class="template-actions">
+                <button class="btn-icon" onclick="event.stopPropagation(); editTemplate('golden_opportunity')" title="Edit">
+                    <span class="material-icons">edit</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="template-card" onclick="useTemplate('price_breakout')">
+            <div class="template-icon">📈</div>
+            <div class="template-details">
+                <div class="template-name">Price Breakout</div>
+                <div class="template-description">Resistance level breakout with volume confirmation</div>
+            </div>
+            <div class="template-actions">
+                <button class="btn-icon" onclick="event.stopPropagation(); editTemplate('price_breakout')" title="Edit">
+                    <span class="material-icons">edit</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="template-card" onclick="useTemplate('volume_spike')">
+            <div class="template-icon">📊</div>
+            <div class="template-details">
+                <div class="template-name">Volume Spike</div>
+                <div class="template-description">Unusual trading activity detection</div>
+            </div>
+            <div class="template-actions">
+                <button class="btn-icon" onclick="event.stopPropagation(); editTemplate('volume_spike')" title="Edit">
+                    <span class="material-icons">edit</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="template-card" onclick="useTemplate('system_status')">
+            <div class="template-icon">⚙️</div>
+            <div class="template-details">
+                <div class="template-name">System Status</div>
+                <div class="template-description">Trading system updates and notifications</div>
+            </div>
+            <div class="template-actions">
+                <button class="btn-icon" onclick="event.stopPropagation(); editTemplate('system_status')" title="Edit">
+                    <span class="material-icons">edit</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alert Statistics -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Alert Statistics</h2>
+        <div class="stats-controls">
+            <select class="filter-select" id="stats-period">
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+                <option value="all">All Time</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <span class="material-icons">send</span>
+            </div>
+            <div class="stat-details">
+                <div class="stat-value" id="total-sent">0</div>
+                <div class="stat-label">Total Sent</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <span class="material-icons">today</span>
+            </div>
+            <div class="stat-details">
+                <div class="stat-value" id="today-sent">0</div>
+                <div class="stat-label">Today</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <span class="material-icons">attach_money</span>
+            </div>
+            <div class="stat-details">
+                <div class="stat-value" id="total-cost">$0.00</div>
+                <div class="stat-label">Total Cost</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <span class="material-icons">check_circle</span>
+            </div>
+            <div class="stat-details">
+                <div class="stat-value" id="success-rate">100%</div>
+                <div class="stat-label">Success Rate</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.telegram-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.telegram-status {
+    margin-top: 15px;
+}
+
+.status-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.status-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px;
+    background-color: var(--surface-variant);
+    border-radius: 8px;
+}
+
+.status-item .material-icons {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-top: 5px;
+}
+
+.status-details {
+    flex: 1;
+}
+
+.status-label {
+    font-size: 0.9rem;
+    opacity: 0.7;
+    margin-bottom: 5px;
+}
+
+.status-value {
+    font-weight: 500;
+    color: var(--on-surface);
+    margin-bottom: 5px;
+}
+
+.status-info {
+    font-size: 0.8rem;
+    opacity: 0.6;
+}
+
+.telegram-setup {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: var(--surface-variant);
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.setup-info h3 {
+    margin-bottom: 15px;
+    color: var(--primary-color);
+}
+
+.setup-info ol {
+    margin-left: 20px;
+}
+
+.setup-info li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.setup-info code {
+    background-color: var(--surface);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+
+.alert-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.alert-form {
+    margin-top: 15px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--on-surface);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    padding: 10px;
+    border: 1px solid var(--surface-variant);
+    border-radius: 6px;
+    background-color: var(--surface);
+    color: var(--on-surface);
+    font-size: 0.9rem;
+    font-family: inherit;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-actions {
+    margin-top: 20px;
+}
+
+.alert-preview {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: var(--surface-variant);
+    border-radius: 8px;
+    border: 1px solid var(--primary-color);
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.preview-badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.preview-badge.critical {
+    background-color: var(--error);
+    color: white;
+}
+
+.preview-badge.high {
+    background-color: var(--warning);
+    color: white;
+}
+
+.preview-badge.medium {
+    background-color: var(--info);
+    color: white;
+}
+
+.preview-badge.low {
+    background-color: var(--success);
+    color: white;
+}
+
+.preview-message {
+    background-color: var(--surface);
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+    margin-bottom: 15px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.preview-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.alerts-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.filter-select {
+    padding: 6px 10px;
+    border: 1px solid var(--surface-variant);
+    border-radius: 6px;
+    background-color: var(--surface);
+    color: var(--on-surface);
+    font-size: 0.85rem;
+}
+
+.alerts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.alert-card {
+    background-color: var(--surface-variant);
+    border-radius: 8px;
+    padding: 15px;
+    border-left: 4px solid var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+.alert-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.alert-card.active {
+    border-left-color: var(--success);
+}
+
+.alert-card.triggered {
+    border-left-color: var(--warning);
+}
+
+.alert-card.paused {
+    border-left-color: var(--error);
+    opacity: 0.7;
+}
+
+.alert-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.alert-type-badge {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.alert-type-badge.golden {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: var(--warning);
+}
+
+.alert-type-badge.volume {
+    background-color: rgba(33, 150, 243, 0.2);
+    color: var(--info);
+}
+
+.alert-type-badge.technical {
+    background-color: rgba(156, 39, 176, 0.2);
+    color: #9c27b0;
+}
+
+.alert-status {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.alert-status.active {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: var(--success);
+}
+
+.alert-status.triggered {
+    background-color: rgba(255, 152, 0, 0.2);
+    color: var(--warning);
+}
+
+.alert-status.paused {
+    background-color: rgba(244, 67, 54, 0.2);
+    color: var(--error);
+}
+
+.alert-details {
+    margin-bottom: 15px;
+}
+
+.alert-symbol {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+
+.alert-condition {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+    opacity: 0.8;
+}
+
+.alert-message {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    opacity: 0.7;
+}
+
+.alert-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 0.8rem;
+}
+
+.alert-priority {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.alert-priority.critical {
+    background-color: rgba(244, 67, 54, 0.2);
+    color: var(--error);
+}
+
+.alert-priority.high {
+    background-color: rgba(255, 152, 0, 0.2);
+    color: var(--warning);
+}
+
+.alert-priority.medium {
+    background-color: rgba(33, 150, 243, 0.2);
+    color: var(--info);
+}
+
+.alert-priority.low {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: var(--success);
+}
+
+.alert-created,
+.alert-triggered {
+    opacity: 0.6;
+}
+
+.alert-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-icon {
+    padding: 6px;
+    border: none;
+    background-color: transparent;
+    color: var(--on-surface);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.btn-icon:hover {
+    background-color: var(--surface);
+}
+
+.btn-icon.btn-error:hover {
+    background-color: var(--error);
+    color: white;
+}
+
+.templates-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.templates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.template-card {
+    background-color: var(--surface-variant);
+    border-radius: 8px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.template-card:hover {
+    background-color: var(--primary-color);
+    color: var(--on-primary);
+    transform: translateY(-2px);
+}
+
+.template-icon {
+    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--surface);
+    border-radius: 50%;
+}
+
+.template-card:hover .template-icon {
+    background-color: var(--on-primary);
+}
+
+.template-details {
+    flex: 1;
+}
+
+.template-name {
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.template-description {
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+.template-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.stats-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.stat-card {
+    background-color: var(--surface-variant);
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--on-primary);
+}
+
+.stat-details {
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--on-surface);
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+@media (max-width: 768px) {
+    .status-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .telegram-controls,
+    .alert-controls,
+    .alerts-controls,
+    .templates-controls,
+    .stats-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .alerts-grid,
+    .templates-grid,
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .preview-actions {
+        flex-direction: column;
+    }
+    
+    .alert-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let activeAlerts = [];
+let alertTemplates = {};
+let alertStats = {
+    totalSent: 0,
+    todaySent: 0,
+    totalCost: 0.00,
+    successRate: 100
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeAlerts();
+    loadActiveAlerts();
+    loadAlertStats();
+    setupAlertForm();
+});
+
+function initializeAlerts() {
+    console.log('Alerts page initialized for Ali (938948925)');
+    checkTelegramStatus();
+}
+
+function checkTelegramStatus() {
+    fetch('/api/telegram-status')
+        .then(response => response.json())
+        .then(data => {
+            updateTelegramStatus(data);
+        })
+        .catch(error => {
+            console.error('Error checking Telegram status:', error);
+            updateTelegramStatus({ connected: false, cost: 0.00, success_rate: 100 });
+        });
+}
+
+function updateTelegramStatus(data) {
+    const botStatus = document.getElementById('bot-status');
+    const alertSystemStatus = document.getElementById('alert-system-status');
+    const costStatus = document.getElementById('cost-status');
+    
+    if (data.connected) {
+        botStatus.textContent = '@alialkhtateebtradingbot - Active';
+        botStatus.style.color = 'var(--success)';
+        alertSystemStatus.textContent = 'Operational';
+        alertSystemStatus.style.color = 'var(--success)';
+    } else {
+        botStatus.textContent = '@alialkhtateebtradingbot - Disconnected';
+        botStatus.style.color = 'var(--error)';
+        alertSystemStatus.textContent = 'Offline';
+        alertSystemStatus.style.color = 'var(--error)';
+    }
+    
+    costStatus.textContent = `$${(data.cost || 0).toFixed(2)} total cost`;
+}
+
+function testTelegramConnection() {
+    const button = event.target;
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner" style="width: 16px; height: 16px; margin-right: 8px;"></span>Testing...';
+    
+    fetch('/api/telegram-test', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Telegram test result:', data);
+            setTimeout(() => {
+                button.disabled = false;
+                button.innerHTML = '<span class="material-icons">wifi</span>Test Connection';
+                checkTelegramStatus();
+            }, 2000);
+        })
+        .catch(error => {
+            console.error('Telegram test error:', error);
+            button.disabled = false;
+            button.innerHTML = '<span class="material-icons">wifi</span>Test Connection';
+        });
+}
+
+function sendTestAlert() {
+    const testAlert = {
+        type: 'system_status',
+        priority: 'low',
+        message: '🧪 Test Alert from Enhanced Options Trading Platform\n\n✅ Telegram integration is working correctly!\n\nAccount: U4312675 (Ali)\nTime: ' + new Date().toLocaleString()
+    };
+    
+    fetch('/api/alerts', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(testAlert)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Test alert sent successfully! Check your Telegram.');
+            loadAlertStats();
+        } else {
+            alert('Error sending test alert: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error sending test alert:', error);
+        alert('Error sending test alert');
+    });
+}
+
+function setupAlertForm() {
+    const alertType = document.getElementById('alert-type');
+    const triggerCondition = document.getElementById('trigger-condition');
+    
+    alertType.addEventListener('change', function() {
+        updateAlertFormForType(this.value);
+    });
+    
+    triggerCondition.addEventListener('change', function() {
+        updateTriggerValueField(this.value);
+    });
+    
+    // Initialize form
+    updateAlertFormForType(alertType.value);
+    updateTriggerValueField(triggerCondition.value);
+}
+
+function updateAlertFormForType(type) {
+    const messageField = document.getElementById('alert-message');
+    const templates = {
+        golden_opportunity: '🏆 Golden Opportunity Detected!\n\nSymbol: {symbol}\nPattern: {pattern}\nScore: {score}\nAction: {action}\n\nAnalysis: High-probability setup with strong momentum and favorable risk/reward ratio.',
+        price_target: '🎯 Price Target Alert\n\nSymbol: {symbol}\nTarget: ${target}\nCurrent: ${current}\n\nPrice target reached! Consider taking action.',
+        technical_signal: '📊 Technical Signal\n\nSymbol: {symbol}\nSignal: {signal}\nStrength: {strength}\n\nTechnical analysis indicates potential trading opportunity.',
+        earnings_alert: '📈 Earnings Alert\n\nSymbol: {symbol}\nEarnings Date: {date}\nExpected Move: {move}\n\nUpcoming earnings announcement - prepare for volatility.',
+        system_status: '⚙️ System Status Update\n\nStatus: {status}\nUptime: {uptime}\nLast Scan: {scan_time}\n\nTrading system operational update.',
+        risk_warning: '⚠️ Risk Warning\n\nSymbol: {symbol}\nRisk Level: {level}\nAction Required: {action}\n\nImmediate attention required for risk management.'
+    };
+    
+    messageField.value = templates[type] || '';
+}
+
+function updateTriggerValueField(condition) {
+    const triggerValueRow = document.getElementById('trigger-value-row');
+    const triggerValueLabel = document.getElementById('trigger-value-label');
+    const triggerValue = document.getElementById('trigger-value');
+    
+    if (condition === 'immediate') {
+        triggerValueRow.style.display = 'none';
+    } else {
+        triggerValueRow.style.display = 'block';
+        
+        const labels = {
+            price_above: 'Price Above ($)',
+            price_below: 'Price Below ($)',
+            volume_spike: 'Volume Threshold',
+            rsi_oversold: 'RSI Below',
+            rsi_overbought: 'RSI Above'
+        };
+        
+        triggerValueLabel.textContent = labels[condition] || 'Trigger Value';
+        
+        const placeholders = {
+            price_above: '175.00',
+            price_below: '170.00',
+            volume_spike: '1000000',
+            rsi_oversold: '30',
+            rsi_overbought: '70'
+        };
+        
+        triggerValue.placeholder = placeholders[condition] || '0.00';
+    }
+}
+
+function clearAlertForm() {
+    document.getElementById('alert-symbol').value = '';
+    document.getElementById('trigger-value').value = '';
+    document.getElementById('alert-message').value = '';
+    
+    // Reset selects to default
+    document.getElementById('alert-type').value = 'golden_opportunity';
+    document.getElementById('alert-priority').value = 'critical';
+    document.getElementById('trigger-condition').value = 'immediate';
+    
+    // Update form for default type
+    updateAlertFormForType('golden_opportunity');
+    updateTriggerValueField('immediate');
+    
+    // Hide preview
+    document.getElementById('alert-preview').style.display = 'none';
+}
+
+function previewAlert() {
+    const alertData = collectAlertData();
+    
+    if (!validateAlertData(alertData)) {
+        return;
+    }
+    
+    // Generate preview message
+    const previewMessage = generatePreviewMessage(alertData);
+    
+    // Show preview
+    const preview = document.getElementById('alert-preview');
+    const previewMessageEl = document.getElementById('preview-message');
+    const previewPriority = document.getElementById('preview-priority');
+    
+    previewMessageEl.textContent = previewMessage;
+    previewPriority.textContent = alertData.priority.toUpperCase();
+    previewPriority.className = `preview-badge ${alertData.priority}`;
+    
+    preview.style.display = 'block';
+    preview.scrollIntoView({ behavior: 'smooth' });
+}
+
+function collectAlertData() {
+    return {
+        type: document.getElementById('alert-type').value,
+        priority: document.getElementById('alert-priority').value,
+        symbol: document.getElementById('alert-symbol').value.toUpperCase(),
+        triggerCondition: document.getElementById('trigger-condition').value,
+        triggerValue: parseFloat(document.getElementById('trigger-value').value) || null,
+        message: document.getElementById('alert-message').value
+    };
+}
+
+function validateAlertData(data) {
+    if (!data.message.trim()) {
+        alert('Please enter an alert message');
+        return false;
+    }
+    
+    if (data.triggerCondition !== 'immediate' && !data.triggerValue) {
+        alert('Please enter a trigger value for the selected condition');
+        return false;
+    }
+    
+    return true;
+}
+
+function generatePreviewMessage(data) {
+    let message = data.message;
+    
+    // Replace placeholders with actual values
+    const replacements = {
+        '{symbol}': data.symbol || 'SYMBOL',
+        '{target}': data.triggerValue || '0.00',
+        '{current}': '175.00', // Mock current price
+        '{pattern}': 'Bullish Breakout',
+        '{score}': '95',
+        '{action}': 'BUY CALL',
+        '{signal}': 'RSI Oversold',
+        '{strength}': 'Strong',
+        '{date}': new Date().toLocaleDateString(),
+        '{move}': '±5%',
+        '{status}': 'Operational',
+        '{uptime}': '99.9%',
+        '{scan_time}': new Date().toLocaleTimeString(),
+        '{level}': 'High',
+        '{action}': 'Review Position'
+    };
+    
+    Object.keys(replacements).forEach(key => {
+        message = message.replace(new RegExp(key.replace(/[{}]/g, '\\$&'), 'g'), replacements[key]);
+    });
+    
+    return message;
+}
+
+function editAlert() {
+    document.getElementById('alert-preview').style.display = 'none';
+}
+
+function createAlert() {
+    previewAlert();
+}
+
+function confirmCreateAlert() {
+    const alertData = collectAlertData();
+    
+    fetch('/api/alerts', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(alertData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Alert created successfully!');
+            clearAlertForm();
+            loadActiveAlerts();
+            loadAlertStats();
+        } else {
+            alert('Error creating alert: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error creating alert:', error);
+        alert('Error creating alert');
+    });
+}
+
+function loadActiveAlerts() {
+    const filter = document.getElementById('alerts-filter')?.value || 'all';
+    
+    fetch(`/api/alerts?filter=${filter}`)
+        .then(response => response.json())
+        .then(data => {
+            activeAlerts = data.alerts || [];
+            updateAlertsGrid();
+        })
+        .catch(error => {
+            console.error('Error loading alerts:', error);
+        });
+}
+
+function updateAlertsGrid() {
+    // Keep existing sample alerts for now
+    // In real implementation, this would use activeAlerts data
+}
+
+function refreshAlerts() {
+    loadActiveAlerts();
+}
+
+function editAlert(alertId) {
+    console.log('Edit alert:', alertId);
+    // Implement alert editing
+}
+
+function pauseAlert(alertId) {
+    fetch(`/api/alerts/${alertId}/pause`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Pause alert result:', data);
+            loadActiveAlerts();
+        })
+        .catch(error => {
+            console.error('Error pausing alert:', error);
+        });
+}
+
+function resumeAlert(alertId) {
+    fetch(`/api/alerts/${alertId}/resume`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Resume alert result:', data);
+            loadActiveAlerts();
+        })
+        .catch(error => {
+            console.error('Error resuming alert:', error);
+        });
+}
+
+function deleteAlert(alertId) {
+    if (confirm('Are you sure you want to delete this alert?')) {
+        fetch(`/api/alerts/${alertId}`, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Delete alert result:', data);
+                loadActiveAlerts();
+            })
+            .catch(error => {
+                console.error('Error deleting alert:', error);
+            });
+    }
+}
+
+function viewAlertHistory(alertId) {
+    console.log('View alert history:', alertId);
+    // Implement alert history view
+}
+
+function useTemplate(templateName) {
+    const templates = {
+        golden_opportunity: {
+            type: 'golden_opportunity',
+            priority: 'critical',
+            message: '🏆 Golden Opportunity Detected!\n\nSymbol: {symbol}\nPattern: Bullish Breakout\nScore: 95\nAction: BUY CALL\n\nAnalysis: High-probability setup with strong momentum and favorable risk/reward ratio.'
+        },
+        price_breakout: {
+            type: 'price_target',
+            priority: 'high',
+            message: '📈 Price Breakout Alert\n\nSymbol: {symbol}\nBreakout Level: ${target}\nCurrent: ${current}\n\nResistance level broken with volume confirmation!'
+        },
+        volume_spike: {
+            type: 'technical_signal',
+            priority: 'medium',
+            message: '📊 Volume Spike Detected\n\nSymbol: {symbol}\nVolume: {volume}\nAverage: {avg_volume}\n\nUnusual trading activity detected - investigate opportunity.'
+        },
+        system_status: {
+            type: 'system_status',
+            priority: 'low',
+            message: '⚙️ System Status Update\n\nStatus: Operational\nUptime: 99.9%\nLast Scan: {scan_time}\n\nTrading system running smoothly.'
+        }
+    };
+    
+    const template = templates[templateName];
+    if (template) {
+        document.getElementById('alert-type').value = template.type;
+        document.getElementById('alert-priority').value = template.priority;
+        document.getElementById('alert-message').value = template.message;
+        
+        updateAlertFormForType(template.type);
+        
+        // Scroll to form
+        document.getElementById('alert-type').scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+function createTemplate() {
+    console.log('Create new template');
+    // Implement template creation
+}
+
+function editTemplate(templateName) {
+    console.log('Edit template:', templateName);
+    // Implement template editing
+}
+
+function loadAlertStats() {
+    const period = document.getElementById('stats-period')?.value || 'today';
+    
+    fetch(`/api/alert-stats?period=${period}`)
+        .then(response => response.json())
+        .then(data => {
+            alertStats = data;
+            updateStatsDisplay();
+        })
+        .catch(error => {
+            console.error('Error loading alert stats:', error);
+        });
+}
+
+function updateStatsDisplay() {
+    document.getElementById('total-sent').textContent = alertStats.totalSent || 0;
+    document.getElementById('today-sent').textContent = alertStats.todaySent || 0;
+    document.getElementById('total-cost').textContent = `$${(alertStats.totalCost || 0).toFixed(2)}`;
+    document.getElementById('success-rate').textContent = `${alertStats.successRate || 100}%`;
+}
+
+// Set up event listeners for filter changes
+document.addEventListener('change', function(event) {
+    if (event.target.id === 'alerts-filter') {
+        loadActiveAlerts();
+    } else if (event.target.id === 'stats-period') {
+        loadAlertStats();
+    }
+});
+</script>
+{% endblock %}
+
