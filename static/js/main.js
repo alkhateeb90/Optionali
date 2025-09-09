@@ -526,14 +526,31 @@ class TradingPlatform {
             const data = await response.json();
             
             if (data.success) {
-                this.showNotification(`Scan completed: ${data.results.length} opportunities found`, 'success');
-                this.updateScanResults(data);
+                // Handle the correct response structure
+                const opportunitiesCount = data.golden_opportunities ? data.golden_opportunities.length : 0;
+                this.showNotification(`Scan completed: ${opportunitiesCount} golden opportunities found`, 'success');
+                
+                // Update scan results with proper data structure
+                this.updateScanResults({
+                    results: data.golden_opportunities || [],
+                    universe_count: data.universe_count || 0,
+                    champions_count: data.champions_count || 0,
+                    scan_time: data.scan_time
+                });
+                
+                // Update system status
+                this.updateSystemStatus({ 
+                    scanner: 'completed',
+                    last_scan: data.scan_time,
+                    opportunities_found: opportunitiesCount
+                });
+                
             } else {
-                this.showNotification('Scan failed: ' + data.error, 'error');
+                this.showNotification('Scan failed: ' + (data.error || 'Unknown error'), 'error');
             }
         } catch (error) {
             console.error('Failed to run manual scan:', error);
-            this.showNotification('Failed to run manual scan', 'error');
+            this.showNotification('Failed to run manual scan: ' + error.message, 'error');
         } finally {
             if (btn) {
                 btn.disabled = false;

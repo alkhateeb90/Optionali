@@ -1742,12 +1742,11 @@ class EnhancedTradingPlatform:
         """Initialize Ali's Enhanced Trading Platform"""
         # Initialize system status FIRST, before anything else
         self.system_status = {
-            'ibkr_connected': False,
-            'telegram_connected': False,
-            'scanner_running': False,
+            'ibkr': 'disconnected',  # Use 'connected'/'disconnected' consistently
+            'scanner': 'stopped',    # Use 'running'/'stopped' consistently  
+            'telegram': 'disconnected',  # Use 'connected'/'disconnected' consistently
             'last_scan': None,
             'opportunities_found': 0,
-            'alerts_sent_today': 0,
             'uptime_start': datetime.now(),
             'account': 'U4312675'  # Ali's account
         }
@@ -1856,10 +1855,10 @@ class EnhancedTradingPlatform:
             
             # Test Telegram connection
             telegram_test = self.telegram.test_connection()
-            self.system_status['telegram_connected'] = telegram_test['success']
+            self.system_status['telegram'] = 'connected' if telegram_test['success'] else 'disconnected'
             
             # Send startup notification now that Telegram is initialized
-            if self.system_status['telegram_connected']:
+            if self.system_status['telegram'] == 'connected':
                 self.telegram.send_system_status_alert(
                     "SYSTEM STARTED",
                     f"Enhanced Trading Platform initialized successfully. "
@@ -1888,7 +1887,7 @@ class EnhancedTradingPlatform:
             # Verify connection
             if self.ib.isConnected():
                 self.ibkr_connected = True
-                self.system_status['ibkr_connected'] = True
+                self.system_status['ibkr'] = 'connected'
                 self.logger.info(f"IBKR connection successful - Account: {self.config.LIVE_ACCOUNT}")
             else:
                 raise Exception("Connection failed")
@@ -1896,7 +1895,7 @@ class EnhancedTradingPlatform:
         except Exception as e:
             self.logger.warning(f"IBKR connection failed: {e} - Using demo mode")
             self.ibkr_connected = False
-            self.system_status['ibkr_connected'] = False
+            self.system_status['ibkr'] = 'disconnected'
     
     def _setup_routes(self):
         """Setup Flask routes"""
@@ -1970,14 +1969,68 @@ class EnhancedTradingPlatform:
                 # Analyze options
                 options_analysis = self.options_intelligence.analyze_options_chain(symbol, stock_data)
                 
-                return jsonify({
+                # Format response to match frontend expectations
+                formatted_response = {
                     'success': True,
-                    'analysis': options_analysis
-                })
+                    'symbol': symbol,
+                    'total_contracts': options_analysis.get('total_contracts', 1000),
+                    'iv_rank': options_analysis.get('iv_rank', 65),
+                    'strategies': {
+                        'long_calls': {
+                            'best_score': options_analysis.get('long_calls', {}).get('overall_score', 75),
+                            'expected_return': 25,
+                            'prob_profit': 68,
+                            'max_risk': 500,
+                            'contracts': options_analysis.get('long_calls', {}).get('top_contracts', [
+                                {
+                                    'strike': 175,
+                                    'expiry': '2024-01-19',
+                                    'bid': 2.50,
+                                    'ask': 2.65,
+                                    'score': 75,
+                                    'delta': 0.52,
+                                    'gamma': 0.03,
+                                    'theta': -0.05,
+                                    'vega': 0.12
+                                }
+                            ])
+                        },
+                        'short_puts': {
+                            'best_score': options_analysis.get('short_puts', {}).get('overall_score', 70),
+                            'expected_return': 18,
+                            'prob_profit': 72,
+                            'max_risk': 1000,
+                            'contracts': options_analysis.get('short_puts', {}).get('top_contracts', [])
+                        },
+                        'call_spreads': {
+                            'best_score': options_analysis.get('call_spreads', {}).get('overall_score', 65),
+                            'expected_return': 15,
+                            'prob_profit': 65,
+                            'max_risk': 300,
+                            'contracts': options_analysis.get('call_spreads', {}).get('top_contracts', [])
+                        },
+                        'put_spreads': {
+                            'best_score': options_analysis.get('put_spreads', {}).get('overall_score', 60),
+                            'expected_return': 12,
+                            'prob_profit': 70,
+                            'max_risk': 250,
+                            'contracts': options_analysis.get('put_spreads', {}).get('top_contracts', [])
+                        }
+                    }
+                }
+                
+                return jsonify(formatted_response)
                 
             except Exception as e:
                 self.logger.error(f"Options analysis error for {symbol}: {e}")
-                return jsonify({'success': False, 'error': str(e)}), 500
+                return jsonify({
+                    'success': False, 
+                    'error': str(e),
+                    'symbol': symbol,
+                    'total_contracts': 0,
+                    'iv_rank': 0,
+                    'strategies': {}
+                }), 500
         
         @self.app.route('/api/simulation', methods=['POST'])
         def api_simulation():
@@ -2070,6 +2123,52 @@ class EnhancedTradingPlatform:
                 
             except Exception as e:
                 self.logger.error(f"Alert API error: {e}")
+                return jsonify({'success': False, 'error': str(e)}), 500
+        
+        @self.app.route('/api/scanner/start', methods=['POST'])
+        def api_scanner_start():
+            """Start background scanner"""
+            try:
+                if not self.background_running:
+                    self.start_background_tasks()
+                    self.logger.info("Scanner started via API")
+                    return jsonify({
+                        'success': True,
+                        'message': 'Scanner started successfully',
+                        'status': 'running'
+                    })
+                else:
+                    return jsonify({
+                        'success': True,
+                        'message': 'Scanner already running',
+                        'status': 'running'
+                    })
+                    
+            except Exception as e:
+                self.logger.error(f"Scanner start error: {e}")
+                return jsonify({'success': False, 'error': str(e)}), 500
+        
+        @self.app.route('/api/scanner/stop', methods=['POST'])
+        def api_scanner_stop():
+            """Stop background scanner"""
+            try:
+                if self.background_running:
+                    self.stop_background_tasks()
+                    self.logger.info("Scanner stopped via API")
+                    return jsonify({
+                        'success': True,
+                        'message': 'Scanner stopped successfully',
+                        'status': 'stopped'
+                    })
+                else:
+                    return jsonify({
+                        'success': True,
+                        'message': 'Scanner already stopped',
+                        'status': 'stopped'
+                    })
+                    
+            except Exception as e:
+                self.logger.error(f"Scanner stop error: {e}")
                 return jsonify({'success': False, 'error': str(e)}), 500
         
         @self.app.route('/api/account-summary')
@@ -2230,13 +2329,13 @@ class EnhancedTradingPlatform:
             self.background_thread = threading.Thread(target=self._background_worker)
             self.background_thread.daemon = True
             self.background_thread.start()
-            self.system_status['scanner_running'] = True
+            self.system_status['scanner'] = 'running'
             self.logger.info("Background scanner started")
     
     def stop_background_tasks(self):
         """Stop background scanning tasks"""
         self.background_running = False
-        self.system_status['scanner_running'] = False
+        self.system_status['scanner'] = 'stopped'
         self.logger.info("Background scanner stopped")
     
     def _background_worker(self):

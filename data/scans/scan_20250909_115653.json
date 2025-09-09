@@ -1,0 +1,19 @@
+{
+  "scan_time": "2025-09-09T11:56:53.599478",
+  "account": "U4312675",
+  "opportunities_count": 2,
+  "opportunities": [
+    {
+      "symbol": "TSLA",
+      "price": 261.43,
+      "volume": 49661729,
+      "market_cap": 800000000000,
+      "options_available": true,
+      "exchange": "SMART",
+      "source": "Demo",
+      "momentum_score": 100.13652760658512,
+      "velocity_spike": true,
+      "oversold_extreme": true,
+      "squeeze_building": true,
+      "support_test": true,
+      "analysis_time": 

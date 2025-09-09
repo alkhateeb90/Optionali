@@ -1,0 +1,19 @@
+{
+  "scan_time": "2025-09-09T12:06:54.691857",
+  "account": "U4312675",
+  "opportunities_count": 1,
+  "opportunities": [
+    {
+      "symbol": "RIOT",
+      "price": 104.83,
+      "volume": 27605228,
+      "market_cap": 104825722206.31978,
+      "options_available": true,
+      "exchange": "SMART",
+      "source": "Demo",
+      "momentum_score": 106.03618670920449,
+      "velocity_spike": true,
+      "oversold_extreme": true,
+      "squeeze_building": true,
+      "support_test": true,
+      "analysis_time": 

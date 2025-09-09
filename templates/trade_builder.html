@@ -769,12 +769,17 @@ function loadOptionsChain(symbol) {
     fetch(`/api/options-analysis/${symbol}`)
         .then(response => response.json())
         .then(data => {
-            updateOptionsData(data);
-            loadStrategyContent(currentStrategy, data);
+            if (data.success) {
+                updateOptionsData(data);
+                loadStrategyContent(currentStrategy, data);
+            } else {
+                console.error('Options analysis failed:', data.error);
+                showStrategyError(data.error || 'Failed to load options data');
+            }
         })
         .catch(error => {
             console.error('Error loading options chain:', error);
-            showStrategyError();
+            showStrategyError('Network error loading options data');
         });
 }
 
@@ -885,12 +890,12 @@ function createContractCard(contract) {
     `;
 }
 
-function showStrategyError() {
+function showStrategyError(errorMessage = 'Unable to analyze options for this strategy') {
     document.getElementById('strategy-content').innerHTML = `
         <div class="error-state">
             <span class="material-icons">error</span>
             <h3>Analysis Error</h3>
-            <p>Unable to analyze options for this strategy</p>
+            <p>${errorMessage}</p>
             <button class="btn btn-secondary" onclick="loadStockData(currentSymbol)">
                 Retry Analysis
             </button>
