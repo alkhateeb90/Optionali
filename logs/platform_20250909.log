@@ -49,3 +49,68 @@
 2025-09-09 16:06:21,087 - main.EnhancedTradingPlatform - INFO - Running background champion scan
 2025-09-09 16:06:21,088 - main.EnhancedTradingPlatform - ERROR - Save scan results error: Object of type datetime is not JSON serializable
 2025-09-09 16:06:21,090 - main.EnhancedTradingPlatform - INFO - Enhanced Trading Platform shutdown complete
+2025-09-09 16:50:12,963 - __main__.EnhancedTradingPlatform - INFO - Connecting to IBKR Gateway at 127.0.0.1:4002
+2025-09-09 16:50:12,964 - __main__.EnhancedTradingPlatform - WARNING - IBKR connection failed: [Errno 111] Connect call failed ('127.0.0.1', 4002) - Using demo mode
+2025-09-09 16:50:13,541 - __main__.EnhancedTradingPlatform - INFO - All components initialized successfully
+2025-09-09 16:50:13,543 - __main__.EnhancedTradingPlatform - INFO - Enhanced Trading Platform initialized for U4312675
+2025-09-09 16:50:13,543 - __main__.EnhancedTradingPlatform - INFO - Starting Enhanced Trading Platform for U4312675
+2025-09-09 16:50:13,543 - __main__.EnhancedTradingPlatform - INFO - Server: http://0.0.0.0:5000
+2025-09-09 16:50:13,543 - __main__.EnhancedTradingPlatform - INFO - Tailscale Access: http://100.105.11.85:5000
+2025-09-09 16:50:13,543 - __main__.EnhancedTradingPlatform - INFO - Base Directory: /home/ubuntu/Optionali
+2025-09-09 16:50:13,543 - __main__.EnhancedTradingPlatform - INFO - Background worker started
+2025-09-09 16:50:13,543 - __main__.EnhancedTradingPlatform - INFO - Background scanner started
+2025-09-09 16:50:13,543 - __main__.EnhancedTradingPlatform - INFO - Running background champion scan
+2025-09-09 16:50:13,544 - __main__.EnhancedTradingPlatform - INFO - Scan results saved: /home/ubuntu/Optionali/data/scans/scan_20250909_165013.json
+2025-09-09 16:50:33,298 - __main__.EnhancedTradingPlatform - INFO - Connecting to IBKR Gateway at 127.0.0.1:4002
+2025-09-09 16:50:33,299 - __main__.EnhancedTradingPlatform - WARNING - IBKR connection failed: [Errno 111] Connect call failed ('127.0.0.1', 4002) - Using demo mode
+2025-09-09 16:50:33,893 - __main__.EnhancedTradingPlatform - INFO - All components initialized successfully
+2025-09-09 16:50:33,894 - __main__.EnhancedTradingPlatform - INFO - Enhanced Trading Platform initialized for U4312675
+2025-09-09 16:50:33,894 - __main__.EnhancedTradingPlatform - INFO - Starting Enhanced Trading Platform for U4312675
+2025-09-09 16:50:33,895 - __main__.EnhancedTradingPlatform - INFO - Server: http://0.0.0.0:5000
+2025-09-09 16:50:33,895 - __main__.EnhancedTradingPlatform - INFO - Tailscale Access: http://100.105.11.85:5000
+2025-09-09 16:50:33,895 - __main__.EnhancedTradingPlatform - INFO - Base Directory: /home/ubuntu/Optionali
+2025-09-09 16:50:33,895 - __main__.EnhancedTradingPlatform - INFO - Background worker started
+2025-09-09 16:50:33,895 - __main__.EnhancedTradingPlatform - INFO - Background scanner started
+2025-09-09 16:50:33,895 - __main__.EnhancedTradingPlatform - INFO - Running background champion scan
+2025-09-09 16:50:33,897 - __main__.EnhancedTradingPlatform - INFO - Scan results saved: /home/ubuntu/Optionali/data/scans/scan_20250909_165033.json
+2025-09-09 16:50:49,500 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+2025-09-09 16:50:49,518 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+2025-09-09 16:50:49,524 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+2025-09-09 16:51:00,269 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+2025-09-09 16:51:00,272 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+2025-09-09 16:51:00,273 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+2025-09-09 16:51:46,903 - __main__.EnhancedTradingPlatform - INFO - Connecting to IBKR Gateway at 127.0.0.1:4002
+2025-09-09 16:51:46,904 - __main__.EnhancedTradingPlatform - WARNING - IBKR connection failed: [Errno 111] Connect call failed ('127.0.0.1', 4002) - Using demo mode
+2025-09-09 16:51:47,745 - __main__.EnhancedTradingPlatform - INFO - All components initialized successfully
+2025-09-09 16:51:47,749 - __main__.EnhancedTradingPlatform - INFO - Enhanced Trading Platform initialized for U4312675
+2025-09-09 16:51:47,749 - __main__.EnhancedTradingPlatform - INFO - Starting Enhanced Trading Platform for U4312675
+2025-09-09 16:51:47,749 - __main__.EnhancedTradingPlatform - INFO - Server: http://0.0.0.0:5000
+2025-09-09 16:51:47,749 - __main__.EnhancedTradingPlatform - INFO - Tailscale Access: http://100.105.11.85:5000
+2025-09-09 16:51:47,749 - __main__.EnhancedTradingPlatform - INFO - Base Directory: /home/ubuntu/Optionali
+2025-09-09 16:51:47,749 - __main__.EnhancedTradingPlatform - INFO - Background worker started
+2025-09-09 16:51:47,749 - __main__.EnhancedTradingPlatform - INFO - Background scanner started
+2025-09-09 16:51:47,750 - __main__.EnhancedTradingPlatform - INFO - Running background champion scan
+2025-09-09 16:51:47,751 - __main__.EnhancedTradingPlatform - INFO - Scan results saved: /home/ubuntu/Optionali/data/scans/scan_20250909_165147.json
+2025-09-09 16:51:47,751 - __main__.EnhancedTradingPlatform - INFO - Enhanced Trading Platform shutdown complete
+2025-09-09 16:52:14,938 - __main__.EnhancedTradingPlatform - INFO - Connecting to IBKR Gateway at 127.0.0.1:4002
+2025-09-09 16:52:14,939 - __main__.EnhancedTradingPlatform - WARNING - IBKR connection failed: [Errno 111] Connect call failed ('127.0.0.1', 4002) - Using demo mode
+2025-09-09 16:52:15,552 - __main__.EnhancedTradingPlatform - INFO - All components initialized successfully
+2025-09-09 16:52:15,556 - __main__.EnhancedTradingPlatform - INFO - Enhanced Trading Platform initialized for U4312675
+2025-09-09 16:52:15,556 - __main__.EnhancedTradingPlatform - INFO - Starting Enhanced Trading Platform for U4312675
+2025-09-09 16:52:15,556 - __main__.EnhancedTradingPlatform - INFO - Server: http://0.0.0.0:5000
+2025-09-09 16:52:15,556 - __main__.EnhancedTradingPlatform - INFO - Tailscale Access: http://100.105.11.85:5000
+2025-09-09 16:52:15,556 - __main__.EnhancedTradingPlatform - INFO - Base Directory: /home/ubuntu/Optionali
+2025-09-09 16:52:15,556 - __main__.EnhancedTradingPlatform - INFO - Background worker started
+2025-09-09 16:52:15,557 - __main__.EnhancedTradingPlatform - INFO - Background scanner started
+2025-09-09 16:52:15,557 - __main__.EnhancedTradingPlatform - INFO - Running background champion scan
+2025-09-09 16:52:15,558 - __main__.EnhancedTradingPlatform - INFO - Scan results saved: /home/ubuntu/Optionali/data/scans/scan_20250909_165215.json
+2025-09-09 16:52:15,559 - __main__.EnhancedTradingPlatform - INFO - Enhanced Trading Platform shutdown complete
+2025-09-09 16:52:42,900 - __main__.EnhancedTradingPlatform - INFO - Connecting to IBKR Gateway at 127.0.0.1:4002
+2025-09-09 16:52:42,901 - __main__.EnhancedTradingPlatform - WARNING - IBKR connection failed: [Errno 111] Connect call failed ('127.0.0.1', 4002) - Using demo mode
+2025-09-09 16:52:43,469 - __main__.EnhancedTradingPlatform - INFO - All components initialized successfully
+2025-09-09 16:52:43,473 - __main__.EnhancedTradingPlatform - INFO - Enhanced Trading Platform initialized for U4312675
+2025-09-09 16:52:43,473 - __main__.EnhancedTradingPlatform - INFO - Starting Enhanced Trading Platform for U4312675
+2025-09-09 16:52:43,473 - __main__.EnhancedTradingPlatform - INFO - Server: http://0.0.0.0:5001
+2025-09-09 16:52:43,473 - __main__.EnhancedTradingPlatform - INFO - Tailscale Access: http://100.105.11.85:5001
+2025-09-09 16:52:43,473 - __main__.EnhancedTradingPlatform - ERROR - Platform error: 'EnhancedTradingPlatform' object has no attribute 'base_dir'
+2025-09-09 16:52:43,473 - __main__.EnhancedTradingPlatform - INFO - Enhanced Trading Platform shutdown complete
