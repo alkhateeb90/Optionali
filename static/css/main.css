@@ -88,18 +88,18 @@ body {
 
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
+    margin: 0 0 var(--spacing-md) 0;
     font-weight: 500;
     line-height: 1.2;
-    margin-bottom: var(--spacing-md);
     color: var(--on-surface);
 }
 
-h1 { font-size: var(--font-size-3xl); }
-h2 { font-size: var(--font-size-2xl); }
-h3 { font-size: var(--font-size-xl); }
-h4 { font-size: var(--font-size-lg); }
-h5 { font-size: var(--font-size-base); }
-h6 { font-size: var(--font-size-sm); }
+h1 { font-size: var(--font-size-xl); }
+h2 { font-size: var(--font-size-lg); }
+h3 { font-size: var(--font-size-base); }
+h4 { font-size: var(--font-size-sm); }
+h5 { font-size: var(--font-size-sm); }
+h6 { font-size: var(--font-size-xs); }
 
 p {
     margin-bottom: var(--spacing-md);
