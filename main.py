@@ -164,12 +164,40 @@ class UniverseFilter:
         """Analyze individual stock"""
         try:
             if self.ib and self.ib.isConnected():
-                # Get real data from IBKR
-                contract = Stock(symbol, 'SMART', 'USD')
-                self.ib.qualifyContracts(contract)
-                
-                ticker = self.ib.reqMktData(contract)
-                self.ib.sleep(1)  # Wait for data
+                # Get real data from IBKR with proper async handling
+                return self._get_stock_data_sync(symbol)
+            
+            # Fallback to demo data
+            return self._get_demo_stock_data(symbol)
+            
+        except Exception as e:
+            self.logger.debug(f"Stock analysis error for {symbol}: {e}")
+            return self._get_demo_stock_data(symbol)
+    
+    def _get_stock_data_sync(self, symbol: str) -> Optional[Dict]:
+        """Synchronous wrapper for async IBKR data retrieval"""
+        try:
+            # Create new event loop for this thread if needed
+            try:
+                loop = asyncio.get_event_loop()
+            except RuntimeError:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+            
+            return loop.run_until_complete(self._get_stock_data_async(symbol))
+        except Exception as e:
+            self.logger.debug(f"Sync wrapper error for {symbol}: {e}")
+            return self._get_demo_stock_data(symbol)
+    
+    async def _get_stock_data_async(self, symbol: str) -> Optional[Dict]:
+        """Async IBKR data retrieval"""
+        try:
+            contract = Stock(symbol, 'SMART', 'USD')
+            qualified = await self.ib.qualifyContractsAsync(contract)
+            
+            if qualified:
+                ticker = self.ib.reqMktData(qualified[0])
+                await asyncio.sleep(2)  # Wait for data
                 
                 if ticker.last and ticker.last > 0:
                     return {
@@ -186,7 +214,7 @@ class UniverseFilter:
             return self._get_demo_stock_data(symbol)
             
         except Exception as e:
-            self.logger.debug(f"Stock analysis error for {symbol}: {e}")
+            self.logger.debug(f"Async stock data error for {symbol}: {e}")
             return self._get_demo_stock_data(symbol)
     
     def _meets_criteria(self, stock_data: Dict) -> bool:
@@ -326,42 +354,63 @@ class MomentumRadar:
             return None
             
         except Exception as e:
-            self.logger.debug(f"Momentum analysis error: {e}")
+            self.logger.debug(f"Golden opportunity analysis error for {symbol}: {e}")
             return None
     
     def _calculate_real_momentum(self, symbol: str) -> float:
-        """Calculate real momentum using IBKR data"""
+        """Calculate real momentum using IBKR data with proper async handling"""
         try:
-            contract = Stock(symbol, 'SMART', 'USD')
-            self.ib.qualifyContracts(contract)
+            # Create new event loop for this thread if needed
+            try:
+                loop = asyncio.get_event_loop()
+            except RuntimeError:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
             
-            # Get historical data
-            bars = self.ib.reqHistoricalData(
-                contract,
-                endDateTime='',
-                durationStr='30 D',
-                barSizeSetting='1 day',
-                whatToShow='TRADES',
-                useRTH=True
-            )
-            
-            if len(bars) >= 20:
-                # Calculate momentum indicators
-                closes = [bar.close for bar in bars]
-                rsi = self._calculate_rsi(closes)
-                momentum = self._calculate_momentum_score(closes)
-                
-                return (rsi + momentum) / 2
-            
-            return 50  # Neutral score
-            
+            return loop.run_until_complete(self._calculate_momentum_async(symbol))
         except Exception as e:
             self.logger.debug(f"Real momentum calculation error for {symbol}: {e}")
             return self._calculate_demo_momentum(symbol)
     
+    async def _calculate_momentum_async(self, symbol: str) -> float:
+        """Async momentum calculation using IBKR data"""
+        try:
+            contract = Stock(symbol, 'SMART', 'USD')
+            qualified = await self.ib.qualifyContractsAsync(contract)
+            
+            if qualified:
+                # Get historical data
+                bars = await self.ib.reqHistoricalDataAsync(
+                    qualified[0],
+                    endDateTime='',
+                    durationStr='30 D',
+                    barSizeSetting='1 day',
+                    whatToShow='TRADES',
+                    useRTH=True
+                )
+                
+                if len(bars) >= 20:
+                    # Calculate momentum indicators
+                    closes = [bar.close for bar in bars]
+                    
+                    # Simple momentum calculation
+                    recent_avg = sum(closes[-5:]) / 5
+                    older_avg = sum(closes[-20:-15]) / 5
+                    
+                    momentum = ((recent_avg - older_avg) / older_avg) * 100
+                    
+                    # Normalize to 0-100 scale
+                    return max(0, min(100, momentum + 50))
+            
+            # Fallback to demo calculation
+            return self._calculate_demo_momentum(symbol)
+            
+        except Exception as e:
+            self.logger.debug(f"Async momentum calculation error for {symbol}: {e}")
+            return self._calculate_demo_momentum(symbol)
+    
     def _calculate_demo_momentum(self, symbol: str) -> float:
-        """Calculate demo momentum score"""
-        # Simulate momentum based on symbol characteristics
+        """Calculate demo momentum based on symbol characteristics"""
         momentum_profiles = {
             'AAPL': 75, 'MSFT': 70, 'GOOGL': 65, 'AMZN': 68, 'NVDA': 85,
             'TSLA': 90, 'META': 72, 'RIOT': 95, 'PLTR': 80, 'SNOW': 78
