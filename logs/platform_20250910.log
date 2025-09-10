@@ -47,3 +47,125 @@
 2025-09-10 08:59:10,755 - __main__.EnhancedTradingPlatform - ERROR - Background scan error: 'NoneType' object has no attribute 'scan_universe'
 2025-09-10 08:59:11,755 - __main__.EnhancedTradingPlatform - INFO - Running background champion scan
 2025-09-10 08:59:11,755 - __main__.EnhancedTradingPlatform - ERROR - Background scan error: 'NoneType' object has no attribute 'scan_universe'
+2025-09-10 11:31:58,739 - __main__.EnhancedTradingPlatform - INFO - Connecting to IBKR Gateway at 127.0.0.1:4002
+2025-09-10 11:31:58,740 - __main__.EnhancedTradingPlatform - WARNING - IBKR connection failed: [Errno 111] Connect call failed ('127.0.0.1', 4002) - Using demo mode
+2025-09-10 11:31:58,740 - __main__.EnhancedTradingPlatform - INFO - Universe Filter initialized
+2025-09-10 11:31:58,740 - __main__.EnhancedTradingPlatform - INFO - Momentum Radar initialized
+2025-09-10 11:31:58,740 - __main__.EnhancedTradingPlatform - INFO - Golden Hunter initialized
+2025-09-10 11:31:58,740 - __main__.EnhancedTradingPlatform - INFO - Options Intelligence initialized
+2025-09-10 11:31:58,740 - __main__.EnhancedTradingPlatform - INFO - Simulation Engine initialized
+2025-09-10 11:31:59,108 - __main__.EnhancedTradingPlatform - INFO - Telegram integration: Connected
+2025-09-10 11:31:59,501 - __main__.EnhancedTradingPlatform - INFO - All components initialized successfully
+2025-09-10 11:31:59,502 - __main__.EnhancedTradingPlatform - INFO - Enhanced Trading Platform initialized for U4312675
+2025-09-10 11:31:59,503 - __main__.EnhancedTradingPlatform - INFO - Starting Enhanced Trading Platform for U4312675
+2025-09-10 11:31:59,503 - __main__.EnhancedTradingPlatform - INFO - Server: http://0.0.0.0:5000
+2025-09-10 11:31:59,503 - __main__.EnhancedTradingPlatform - INFO - Tailscale Access: http://100.105.11.85:5000
+2025-09-10 11:31:59,503 - __main__.EnhancedTradingPlatform - INFO - Base Directory: /home/ubuntu/Optionali
+2025-09-10 11:31:59,503 - __main__.EnhancedTradingPlatform - INFO - Background worker started
+2025-09-10 11:31:59,503 - __main__.EnhancedTradingPlatform - INFO - Background scanner started
+2025-09-10 11:31:59,503 - __main__.EnhancedTradingPlatform - INFO - Running background champion scan
+2025-09-10 11:31:59,505 - __main__.EnhancedTradingPlatform - INFO - Scan results saved: /home/ubuntu/Optionali/data/scans/scan_20250910_113159.json
+2025-09-10 11:31:59,505 - __main__.EnhancedTradingPlatform - INFO - Enhanced Trading Platform shutdown complete
+2025-09-10 11:32:25,087 - __main__.EnhancedTradingPlatform - INFO - Connecting to IBKR Gateway at 127.0.0.1:4002
+2025-09-10 11:32:25,088 - __main__.EnhancedTradingPlatform - WARNING - IBKR connection failed: [Errno 111] Connect call failed ('127.0.0.1', 4002) - Using demo mode
+2025-09-10 11:32:25,088 - __main__.EnhancedTradingPlatform - INFO - Universe Filter initialized
+2025-09-10 11:32:25,088 - __main__.EnhancedTradingPlatform - INFO - Momentum Radar initialized
+2025-09-10 11:32:25,088 - __main__.EnhancedTradingPlatform - INFO - Golden Hunter initialized
+2025-09-10 11:32:25,088 - __main__.EnhancedTradingPlatform - INFO - Options Intelligence initialized
+2025-09-10 11:32:25,088 - __main__.EnhancedTradingPlatform - INFO - Simulation Engine initialized
+2025-09-10 11:32:25,422 - __main__.EnhancedTradingPlatform - INFO - Telegram integration: Connected
+2025-09-10 11:32:25,763 - __main__.EnhancedTradingPlatform - INFO - All components initialized successfully
+2025-09-10 11:32:25,765 - __main__.EnhancedTradingPlatform - INFO - Enhanced Trading Platform initialized for U4312675
+2025-09-10 11:32:25,765 - __main__.EnhancedTradingPlatform - INFO - Starting Enhanced Trading Platform for U4312675
+2025-09-10 11:32:25,765 - __main__.EnhancedTradingPlatform - INFO - Server: http://0.0.0.0:5001
+2025-09-10 11:32:25,765 - __main__.EnhancedTradingPlatform - INFO - Tailscale Access: http://100.105.11.85:5001
+2025-09-10 11:32:25,765 - __main__.EnhancedTradingPlatform - INFO - Base Directory: /home/ubuntu/Optionali
+2025-09-10 11:32:25,765 - __main__.EnhancedTradingPlatform - INFO - Background worker started
+2025-09-10 11:32:25,766 - __main__.EnhancedTradingPlatform - INFO - Background scanner started
+2025-09-10 11:32:25,766 - __main__.EnhancedTradingPlatform - INFO - Running background champion scan
+2025-09-10 11:32:25,767 - __main__.EnhancedTradingPlatform - INFO - Scan results saved: /home/ubuntu/Optionali/data/scans/scan_20250910_113225.json
+2025-09-10 11:32:40,463 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+2025-09-10 11:32:40,468 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+2025-09-10 11:32:40,502 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+2025-09-10 11:32:47,700 - __main__.EnhancedTradingPlatform - INFO - Scan results saved: /home/ubuntu/Optionali/data/scans/scan_20250910_113247.json
+2025-09-10 11:32:55,951 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+2025-09-10 11:32:55,952 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+2025-09-10 11:32:55,954 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+2025-09-10 11:33:51,704 - __main__.EnhancedTradingPlatform - INFO - Connecting to IBKR Gateway at 127.0.0.1:4002
+2025-09-10 11:33:51,705 - __main__.EnhancedTradingPlatform - WARNING - IBKR connection failed: [Errno 111] Connect call failed ('127.0.0.1', 4002) - Using demo mode
+2025-09-10 11:33:51,705 - __main__.EnhancedTradingPlatform - INFO - Universe Filter initialized
+2025-09-10 11:33:51,705 - __main__.EnhancedTradingPlatform - INFO - Momentum Radar initialized
+2025-09-10 11:33:51,705 - __main__.EnhancedTradingPlatform - INFO - Golden Hunter initialized
+2025-09-10 11:33:51,705 - __main__.EnhancedTradingPlatform - INFO - Options Intelligence initialized
+2025-09-10 11:33:51,705 - __main__.EnhancedTradingPlatform - INFO - Simulation Engine initialized
+2025-09-10 11:33:52,030 - __main__.EnhancedTradingPlatform - INFO - Telegram integration: Connected
+2025-09-10 11:33:52,313 - __main__.EnhancedTradingPlatform - INFO - All components initialized successfully
+2025-09-10 11:33:52,316 - __main__.EnhancedTradingPlatform - INFO - Enhanced Trading Platform initialized for U4312675
+2025-09-10 11:33:52,316 - __main__.EnhancedTradingPlatform - INFO - Starting Enhanced Trading Platform for U4312675
+2025-09-10 11:33:52,316 - __main__.EnhancedTradingPlatform - INFO - Server: http://0.0.0.0:5001
+2025-09-10 11:33:52,316 - __main__.EnhancedTradingPlatform - INFO - Tailscale Access: http://100.105.11.85:5001
+2025-09-10 11:33:52,316 - __main__.EnhancedTradingPlatform - INFO - Base Directory: /home/ubuntu/Optionali
+2025-09-10 11:33:52,317 - __main__.EnhancedTradingPlatform - INFO - Background worker started
+2025-09-10 11:33:52,317 - __main__.EnhancedTradingPlatform - INFO - Background scanner started
+2025-09-10 11:33:52,317 - __main__.EnhancedTradingPlatform - INFO - Running background champion scan
+2025-09-10 11:33:52,318 - __main__.EnhancedTradingPlatform - INFO - Scan results saved: /home/ubuntu/Optionali/data/scans/scan_20250910_113352.json
+2025-09-10 11:33:52,319 - __main__.EnhancedTradingPlatform - INFO - Enhanced Trading Platform shutdown complete
+2025-09-10 11:34:12,088 - __main__.EnhancedTradingPlatform - INFO - Connecting to IBKR Gateway at 127.0.0.1:4002
+2025-09-10 11:34:12,089 - __main__.EnhancedTradingPlatform - WARNING - IBKR connection failed: [Errno 111] Connect call failed ('127.0.0.1', 4002) - Using demo mode
+2025-09-10 11:34:12,089 - __main__.EnhancedTradingPlatform - INFO - Universe Filter initialized
+2025-09-10 11:34:12,089 - __main__.EnhancedTradingPlatform - INFO - Momentum Radar initialized
+2025-09-10 11:34:12,089 - __main__.EnhancedTradingPlatform - INFO - Golden Hunter initialized
+2025-09-10 11:34:12,089 - __main__.EnhancedTradingPlatform - INFO - Options Intelligence initialized
+2025-09-10 11:34:12,089 - __main__.EnhancedTradingPlatform - INFO - Simulation Engine initialized
+2025-09-10 11:34:12,383 - __main__.EnhancedTradingPlatform - INFO - Telegram integration: Connected
+2025-09-10 11:34:12,673 - __main__.EnhancedTradingPlatform - INFO - All components initialized successfully
+2025-09-10 11:34:12,677 - __main__.EnhancedTradingPlatform - INFO - Enhanced Trading Platform initialized for U4312675
+2025-09-10 11:34:12,677 - __main__.EnhancedTradingPlatform - INFO - Starting Enhanced Trading Platform for U4312675
+2025-09-10 11:34:12,677 - __main__.EnhancedTradingPlatform - INFO - Server: http://0.0.0.0:5001
+2025-09-10 11:34:12,677 - __main__.EnhancedTradingPlatform - INFO - Tailscale Access: http://100.105.11.85:5001
+2025-09-10 11:34:12,677 - __main__.EnhancedTradingPlatform - INFO - Base Directory: /home/ubuntu/Optionali
+2025-09-10 11:34:12,678 - __main__.EnhancedTradingPlatform - INFO - Background worker started
+2025-09-10 11:34:12,678 - __main__.EnhancedTradingPlatform - INFO - Background scanner started
+2025-09-10 11:34:12,678 - __main__.EnhancedTradingPlatform - INFO - Running background champion scan
+2025-09-10 11:34:12,679 - __main__.EnhancedTradingPlatform - INFO - Scan results saved: /home/ubuntu/Optionali/data/scans/scan_20250910_113412.json
+2025-09-10 11:34:12,680 - __main__.EnhancedTradingPlatform - INFO - Enhanced Trading Platform shutdown complete
+2025-09-10 11:34:33,370 - __main__.EnhancedTradingPlatform - INFO - Connecting to IBKR Gateway at 127.0.0.1:4002
+2025-09-10 11:34:33,370 - __main__.EnhancedTradingPlatform - WARNING - IBKR connection failed: [Errno 111] Connect call failed ('127.0.0.1', 4002) - Using demo mode
+2025-09-10 11:34:33,371 - __main__.EnhancedTradingPlatform - INFO - Universe Filter initialized
+2025-09-10 11:34:33,371 - __main__.EnhancedTradingPlatform - INFO - Momentum Radar initialized
+2025-09-10 11:34:33,371 - __main__.EnhancedTradingPlatform - INFO - Golden Hunter initialized
+2025-09-10 11:34:33,371 - __main__.EnhancedTradingPlatform - INFO - Options Intelligence initialized
+2025-09-10 11:34:33,371 - __main__.EnhancedTradingPlatform - INFO - Simulation Engine initialized
+2025-09-10 11:34:33,683 - __main__.EnhancedTradingPlatform - INFO - Telegram integration: Connected
+2025-09-10 11:34:33,999 - __main__.EnhancedTradingPlatform - INFO - All components initialized successfully
+2025-09-10 11:34:34,001 - __main__.EnhancedTradingPlatform - INFO - Enhanced Trading Platform initialized for U4312675
+2025-09-10 11:34:34,001 - __main__.EnhancedTradingPlatform - INFO - Starting Enhanced Trading Platform for U4312675
+2025-09-10 11:34:34,001 - __main__.EnhancedTradingPlatform - INFO - Server: http://0.0.0.0:5002
+2025-09-10 11:34:34,001 - __main__.EnhancedTradingPlatform - INFO - Tailscale Access: http://100.105.11.85:5002
+2025-09-10 11:34:34,001 - __main__.EnhancedTradingPlatform - INFO - Base Directory: /home/ubuntu/Optionali
+2025-09-10 11:34:34,002 - __main__.EnhancedTradingPlatform - INFO - Background worker started
+2025-09-10 11:34:34,002 - __main__.EnhancedTradingPlatform - INFO - Background scanner started
+2025-09-10 11:34:34,002 - __main__.EnhancedTradingPlatform - INFO - Running background champion scan
+2025-09-10 11:34:34,003 - __main__.EnhancedTradingPlatform - INFO - Scan results saved: /home/ubuntu/Optionali/data/scans/scan_20250910_113434.json
+2025-09-10 11:34:50,466 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+2025-09-10 11:34:50,490 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+2025-09-10 11:34:50,506 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+2025-09-10 11:34:58,451 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+2025-09-10 11:34:58,453 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+2025-09-10 11:34:58,454 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+2025-09-10 11:34:58,942 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+2025-09-10 11:34:58,955 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+2025-09-10 11:34:58,966 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+2025-09-10 11:35:16,558 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+2025-09-10 11:35:16,560 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+2025-09-10 11:35:16,561 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+2025-09-10 11:35:17,061 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+2025-09-10 11:35:17,074 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+2025-09-10 11:35:36,666 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+2025-09-10 11:35:36,667 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+2025-09-10 11:35:37,154 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+2025-09-10 11:35:37,164 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+2025-09-10 11:35:47,813 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+2025-09-10 11:35:47,814 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+2025-09-10 11:35:48,346 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+2025-09-10 11:35:48,347 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket

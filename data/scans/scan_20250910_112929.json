@@ -1,0 +1,34 @@
+{
+  "scan_time": "2025-09-10T11:29:29.694781",
+  "account": "U4312675",
+  "opportunities_count": 1,
+  "opportunities": [
+    {
+      "symbol": "RIOT",
+      "price": 103.15,
+      "volume": 11562088,
+      "market_cap": 103152068224.96666,
+      "options_available": true,
+      "exchange": "SMART",
+      "source": "Demo",
+      "momentum_score": 98.07144152215335,
+      "velocity_spike": true,
+      "oversold_extreme": true,
+      "squeeze_building": true,
+      "support_test": true,
+      "analysis_time": "2025-09-10 11:29:29.523913",
+      "golden_score": 81.0148759178468,
+      "primary_pattern": "short_squeeze",
+      "pattern_scores": {
+        "uranium_bounce": 45,
+        "earnings_leak": 77.8920449715871,
+        "short_squeeze": 90,
+        "sector_rotation": 74.78898830919695
+      },
+      "alert_level": "GOLDEN",
+      "action_required": true,
+      "confidence": "MEDIUM",
+      "golden_analysis_time": "2025-09-10 11:29:29.523999"
+    }
+  ]
+}

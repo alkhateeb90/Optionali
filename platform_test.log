@@ -1,0 +1,194 @@
+nohup: ignoring input
+2025-09-10 11:34:33,370 - __main__.EnhancedTradingPlatform - INFO - Connecting to IBKR Gateway at 127.0.0.1:4002
+API connection failed: ConnectionRefusedError(111, "Connect call failed ('127.0.0.1', 4002)")
+Make sure API port on TWS/IBG is open
+2025-09-10 11:34:33,370 - __main__.EnhancedTradingPlatform - WARNING - IBKR connection failed: [Errno 111] Connect call failed ('127.0.0.1', 4002) - Using demo mode
+2025-09-10 11:34:33,371 - __main__.EnhancedTradingPlatform - INFO - Universe Filter initialized
+2025-09-10 11:34:33,371 - __main__.EnhancedTradingPlatform - INFO - Momentum Radar initialized
+2025-09-10 11:34:33,371 - __main__.EnhancedTradingPlatform - INFO - Golden Hunter initialized
+2025-09-10 11:34:33,371 - __main__.EnhancedTradingPlatform - INFO - Options Intelligence initialized
+2025-09-10 11:34:33,371 - __main__.EnhancedTradingPlatform - INFO - Simulation Engine initialized
+2025-09-10 11:34:33,683 - __main__.EnhancedTradingPlatform - INFO - Telegram integration: Connected
+2025-09-10 11:34:33,999 - __main__.EnhancedTradingPlatform - INFO - All components initialized successfully
+2025-09-10 11:34:34,001 - __main__.EnhancedTradingPlatform - INFO - Enhanced Trading Platform initialized for U4312675
+2025-09-10 11:34:34,001 - __main__.EnhancedTradingPlatform - INFO - Starting Enhanced Trading Platform for U4312675
+2025-09-10 11:34:34,001 - __main__.EnhancedTradingPlatform - INFO - Server: http://0.0.0.0:5002
+2025-09-10 11:34:34,001 - __main__.EnhancedTradingPlatform - INFO - Tailscale Access: http://100.105.11.85:5002
+2025-09-10 11:34:34,001 - __main__.EnhancedTradingPlatform - INFO - Base Directory: /home/ubuntu/Optionali
+2025-09-10 11:34:34,002 - __main__.EnhancedTradingPlatform - INFO - Background worker started
+2025-09-10 11:34:34,002 - __main__.EnhancedTradingPlatform - INFO - Background scanner started
+2025-09-10 11:34:34,002 - __main__.EnhancedTradingPlatform - INFO - Running background champion scan
+Werkzeug appears to be used in a production deployment. Consider switching to a production web server instead.
+ * Serving Flask app 'main'
+ * Debug mode: off
+2025-09-10 11:34:34,003 - __main__.EnhancedTradingPlatform - INFO - Scan results saved: /home/ubuntu/Optionali/data/scans/scan_20250910_113434.json
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5002
+ * Running on http://169.254.0.21:5002
+[33mPress CTRL+C to quit[0m
+127.0.0.1 - - [10/Sep/2025 11:34:44] "HEAD /scanner HTTP/1.1" 200 -
+127.0.0.1 - - [10/Sep/2025 11:34:50] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [10/Sep/2025 11:34:50] "GET /static/css/material-design.css HTTP/1.1" 200 -
+127.0.0.1 - - [10/Sep/2025 11:34:50] "GET /static/css/trading-theme.css HTTP/1.1" 200 -
+127.0.0.1 - - [10/Sep/2025 11:34:50] "GET /static/css/responsive.css HTTP/1.1" 200 -
+127.0.0.1 - - [10/Sep/2025 11:34:50] "GET /static/js/websocket.js HTTP/1.1" 200 -
+127.0.0.1 - - [10/Sep/2025 11:34:50] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [10/Sep/2025 11:34:50] "GET /static/js/components.js HTTP/1.1" 200 -
+127.0.0.1 - - [10/Sep/2025 11:34:50] "GET /api/system-status HTTP/1.1" 200 -
+127.0.0.1 - - [10/Sep/2025 11:34:50] "GET /api/system-status HTTP/1.1" 200 -
+127.0.0.1 - - [10/Sep/2025 11:34:50] "GET /api/golden-opportunities HTTP/1.1" 200 -
+127.0.0.1 - - [10/Sep/2025 11:34:50] "GET /socket.io/?EIO=4&transport=polling&t=PaqG-io HTTP/1.1" 200 -
+127.0.0.1 - - [10/Sep/2025 11:34:50] "GET /api/system-status HTTP/1.1" 200 -
+2025-09-10 11:34:50,466 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+2025-09-10 11:34:50,490 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+127.0.0.1 - - [10/Sep/2025 11:34:50] "POST /socket.io/?EIO=4&transport=polling&t=PaqG-jg&sid=pM9PT4c908pb7QIgAAAC HTTP/1.1" 200 -
+127.0.0.1 - - [10/Sep/2025 11:34:50] "GET /socket.io/?EIO=4&transport=polling&t=PaqG-jt&sid=pM9PT4c908pb7QIgAAAC HTTP/1.1" 200 -
+2025-09-10 11:34:50,506 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+127.0.0.1 - - [10/Sep/2025 11:34:50] "[36mGET /static/css/material-design.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:34:50] "[36mGET /static/css/trading-theme.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:34:50] "[36mGET /static/css/responsive.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:34:50] "GET /socket.io/?EIO=4&transport=polling&t=PaqG-l2&sid=pM9PT4c908pb7QIgAAAC HTTP/1.1" 200 -
+127.0.0.1 - - [10/Sep/2025 11:34:50] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+127.0.0.1 - - [10/Sep/2025 11:34:50] "GET /socket.io/?EIO=4&transport=polling&t=PaqG-lY&sid=pM9PT4c908pb7QIgAAAC HTTP/1.1" 200 -
+127.0.0.1 - - [10/Sep/2025 11:34:58] "GET /scanner HTTP/1.1" 200 -
+2025-09-10 11:34:58,451 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+127.0.0.1 - - [10/Sep/2025 11:34:58] "[35m[1mGET /socket.io/?EIO=4&transport=websocket HTTP/1.1[0m" 500 -
+Error on request:
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/werkzeug/serving.py", line 370, in run_wsgi
+    execute(self.server.app)
+  File "/usr/local/lib/python3.11/dist-packages/werkzeug/serving.py", line 336, in execute
+    write(b"")
+  File "/usr/local/lib/python3.11/dist-packages/werkzeug/serving.py", line 261, in write
+    assert status_set is not None, "write() before start_response"
+AssertionError: write() before start_response
+2025-09-10 11:34:58,453 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+2025-09-10 11:34:58,454 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+127.0.0.1 - - [10/Sep/2025 11:34:58] "GET /socket.io/?EIO=4&transport=websocket&sid=pM9PT4c908pb7QIgAAAC HTTP/1.1" 200 -
+127.0.0.1 - - [10/Sep/2025 11:34:58] "[35m[1mGET /socket.io/?EIO=4&transport=websocket HTTP/1.1[0m" 500 -
+Error on request:
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/werkzeug/serving.py", line 370, in run_wsgi
+    execute(self.server.app)
+  File "/usr/local/lib/python3.11/dist-packages/werkzeug/serving.py", line 336, in execute
+    write(b"")
+  File "/usr/local/lib/python3.11/dist-packages/werkzeug/serving.py", line 261, in write
+    assert status_set is not None, "write() before start_response"
+AssertionError: write() before start_response
+127.0.0.1 - - [10/Sep/2025 11:34:58] "[36mGET /static/css/material-design.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:34:58] "[36mGET /static/css/trading-theme.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:34:58] "[36mGET /static/css/responsive.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:34:58] "[36mGET /static/js/websocket.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:34:58] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:34:58] "[36mGET /static/js/components.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:34:58] "GET /api/system-status HTTP/1.1" 200 -
+127.0.0.1 - - [10/Sep/2025 11:34:58] "[33mGET /api/scan-results HTTP/1.1[0m" 404 -
+127.0.0.1 - - [10/Sep/2025 11:34:58] "GET /socket.io/?EIO=4&transport=polling&t=PaqH0nO HTTP/1.1" 200 -
+2025-09-10 11:34:58,942 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+2025-09-10 11:34:58,955 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+127.0.0.1 - - [10/Sep/2025 11:34:58] "POST /socket.io/?EIO=4&transport=polling&t=PaqH0o3&sid=-2rjEBkmUl_xtPVOAAAI HTTP/1.1" 200 -
+2025-09-10 11:34:58,966 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+127.0.0.1 - - [10/Sep/2025 11:34:58] "GET /socket.io/?EIO=4&transport=polling&t=PaqH0oB&sid=-2rjEBkmUl_xtPVOAAAI HTTP/1.1" 200 -
+127.0.0.1 - - [10/Sep/2025 11:34:59] "GET /socket.io/?EIO=4&transport=polling&t=PaqH0op&sid=-2rjEBkmUl_xtPVOAAAI HTTP/1.1" 200 -
+127.0.0.1 - - [10/Sep/2025 11:34:59] "[36mGET /static/css/material-design.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:34:59] "[36mGET /static/css/trading-theme.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:34:59] "[36mGET /static/css/responsive.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:08] "[33mPOST /api/scanner/start HTTP/1.1[0m" 404 -
+127.0.0.1 - - [10/Sep/2025 11:35:16] "GET /trade-builder HTTP/1.1" 200 -
+2025-09-10 11:35:16,558 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+127.0.0.1 - - [10/Sep/2025 11:35:16] "[35m[1mGET /socket.io/?EIO=4&transport=websocket HTTP/1.1[0m" 500 -
+Error on request:
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/werkzeug/serving.py", line 370, in run_wsgi
+    execute(self.server.app)
+  File "/usr/local/lib/python3.11/dist-packages/werkzeug/serving.py", line 336, in execute
+    write(b"")
+  File "/usr/local/lib/python3.11/dist-packages/werkzeug/serving.py", line 261, in write
+    assert status_set is not None, "write() before start_response"
+AssertionError: write() before start_response
+2025-09-10 11:35:16,560 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+127.0.0.1 - - [10/Sep/2025 11:35:16] "GET /socket.io/?EIO=4&transport=websocket&sid=-2rjEBkmUl_xtPVOAAAI HTTP/1.1" 200 -
+2025-09-10 11:35:16,561 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+127.0.0.1 - - [10/Sep/2025 11:35:16] "[35m[1mGET /socket.io/?EIO=4&transport=websocket HTTP/1.1[0m" 500 -
+Error on request:
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/werkzeug/serving.py", line 370, in run_wsgi
+    execute(self.server.app)
+  File "/usr/local/lib/python3.11/dist-packages/werkzeug/serving.py", line 336, in execute
+    write(b"")
+  File "/usr/local/lib/python3.11/dist-packages/werkzeug/serving.py", line 261, in write
+    assert status_set is not None, "write() before start_response"
+AssertionError: write() before start_response
+127.0.0.1 - - [10/Sep/2025 11:35:16] "[36mGET /static/css/material-design.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:16] "[36mGET /static/css/trading-theme.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:16] "[36mGET /static/css/responsive.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:16] "[36mGET /static/js/websocket.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:16] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:16] "[36mGET /static/js/components.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:17] "GET /api/system-status HTTP/1.1" 200 -
+127.0.0.1 - - [10/Sep/2025 11:35:17] "[33mGET /api/stock-quote/AAPL HTTP/1.1[0m" 404 -
+2025-09-10 11:35:17,061 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+2025-09-10 11:35:17,074 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+127.0.0.1 - - [10/Sep/2025 11:35:17] "[36mGET /static/css/material-design.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:17] "[36mGET /static/css/trading-theme.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:17] "[36mGET /static/css/responsive.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:25] "[33mGET /api/stock-quote/AAPL HTTP/1.1[0m" 404 -
+127.0.0.1 - - [10/Sep/2025 11:35:36] "GET /execution HTTP/1.1" 200 -
+2025-09-10 11:35:36,666 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+2025-09-10 11:35:36,667 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+127.0.0.1 - - [10/Sep/2025 11:35:36] "[35m[1mGET /socket.io/?EIO=4&transport=websocket HTTP/1.1[0m" 500 -
+Error on request:
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/werkzeug/serving.py", line 370, in run_wsgi
+    execute(self.server.app)
+  File "/usr/local/lib/python3.11/dist-packages/werkzeug/serving.py", line 336, in execute
+    write(b"")
+  File "/usr/local/lib/python3.11/dist-packages/werkzeug/serving.py", line 261, in write
+    assert status_set is not None, "write() before start_response"
+AssertionError: write() before start_response
+127.0.0.1 - - [10/Sep/2025 11:35:36] "[36mGET /static/css/material-design.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:36] "[36mGET /static/css/trading-theme.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:36] "[36mGET /static/css/responsive.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:36] "[36mGET /static/js/websocket.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:36] "[36mGET /static/js/components.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:36] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:37] "GET /api/system-status HTTP/1.1" 200 -
+127.0.0.1 - - [10/Sep/2025 11:35:37] "GET /api/system-status HTTP/1.1" 200 -
+127.0.0.1 - - [10/Sep/2025 11:35:37] "[33mGET /api/account-summary HTTP/1.1[0m" 404 -
+127.0.0.1 - - [10/Sep/2025 11:35:37] "[33mGET /api/orders HTTP/1.1[0m" 404 -
+127.0.0.1 - - [10/Sep/2025 11:35:37] "[33mGET /api/executions?filter=today HTTP/1.1[0m" 404 -
+127.0.0.1 - - [10/Sep/2025 11:35:37] "[33mGET /api/positions HTTP/1.1[0m" 404 -
+2025-09-10 11:35:37,154 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+2025-09-10 11:35:37,164 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+127.0.0.1 - - [10/Sep/2025 11:35:37] "[36mGET /static/css/material-design.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:37] "[36mGET /static/css/trading-theme.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:37] "[36mGET /static/css/responsive.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:47] "GET /alerts HTTP/1.1" 200 -
+2025-09-10 11:35:47,813 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+2025-09-10 11:35:47,814 - __main__.EnhancedTradingPlatform - INFO - Client disconnected from WebSocket
+127.0.0.1 - - [10/Sep/2025 11:35:47] "[35m[1mGET /socket.io/?EIO=4&transport=websocket HTTP/1.1[0m" 500 -
+Error on request:
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/werkzeug/serving.py", line 370, in run_wsgi
+    execute(self.server.app)
+  File "/usr/local/lib/python3.11/dist-packages/werkzeug/serving.py", line 336, in execute
+    write(b"")
+  File "/usr/local/lib/python3.11/dist-packages/werkzeug/serving.py", line 261, in write
+    assert status_set is not None, "write() before start_response"
+AssertionError: write() before start_response
+127.0.0.1 - - [10/Sep/2025 11:35:47] "[36mGET /static/css/material-design.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:47] "[36mGET /static/css/trading-theme.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:47] "[36mGET /static/css/responsive.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:47] "[36mGET /static/js/websocket.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:47] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:47] "[36mGET /static/js/components.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:48] "GET /api/system-status HTTP/1.1" 200 -
+2025-09-10 11:35:48,346 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+2025-09-10 11:35:48,347 - __main__.EnhancedTradingPlatform - INFO - Client connected to WebSocket
+127.0.0.1 - - [10/Sep/2025 11:35:48] "[33mGET /api/telegram-status HTTP/1.1[0m" 404 -
+127.0.0.1 - - [10/Sep/2025 11:35:48] "[33mGET /api/alerts?filter=all HTTP/1.1[0m" 404 -
+127.0.0.1 - - [10/Sep/2025 11:35:48] "[33mGET /api/alert-stats?period=today HTTP/1.1[0m" 404 -
+127.0.0.1 - - [10/Sep/2025 11:35:48] "[36mGET /static/css/material-design.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:48] "[36mGET /static/css/trading-theme.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [10/Sep/2025 11:35:48] "[36mGET /static/css/responsive.css HTTP/1.1[0m" 304 -

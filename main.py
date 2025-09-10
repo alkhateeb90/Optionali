@@ -650,7 +650,7 @@ class GoldenHunter:
         return sorted(golden_opportunities, key=lambda x: x['golden_score'], reverse=True)
 
 # ============================================================================
-# OPTIONS INTELLIGENCE (Truncated for space - continues with same pattern)
+# OPTIONS INTELLIGENCE
 # ============================================================================
 
 class OptionsIntelligence:
@@ -677,7 +677,7 @@ class OptionsIntelligence:
         }
 
 # ============================================================================
-# SIMULATION ENGINE (Truncated for space)
+# SIMULATION ENGINE
 # ============================================================================
 
 class SimulationEngine:
@@ -990,76 +990,64 @@ class EnhancedTradingPlatform:
         """Create necessary directories"""
         directories = [
             self.config.SCAN_DIR,
+            self.config.TRADE_DIR,
             self.config.DATA_DIR,
-            self.config.LOG_DIR
+            self.config.LOG_DIR,
+            self.config.CONFIG_DIR,
+            os.path.join(self.config.BASE_DIR, 'templates'),
+            os.path.join(self.config.BASE_DIR, 'static'),
+            os.path.join(self.config.BASE_DIR, 'static', 'css'),
+            os.path.join(self.config.BASE_DIR, 'static', 'js')
         ]
         
         for directory in directories:
             os.makedirs(directory, exist_ok=True)
-            self.logger.info(f"Directory ensured: {directory}")
+            self.logger.debug(f"Directory created/verified: {directory}")
     
     def _initialize_components(self):
         """Initialize all trading components with proper error handling"""
         try:
-            # Initialize system status with market awareness
-            self.system_status = {
-                'ibkr_connected': False,
-                'data_connected': False,
-                'scanner_running': False,
-                'telegram_connected': False,
-                'market_open': self._is_market_open(),
-                'last_scan': None,
-                'opportunities_found': 0,
-                'alerts_sent': 0,
-                'total_cost': 0.0,
-                'success_rate': 100.0,
-                'platform_status': 'INITIALIZING'
-            }
-            
-            # Connect to IBKR
+            # Test IBKR connection
             self._connect_ibkr()
             
-            # Initialize components with error handling
+            # Initialize components with required parameters
             try:
-                self.universe_filter = UniverseFilter()
+                self.universe_filter = UniverseFilter(self.ib, self.config)
                 self.logger.info("Universe Filter initialized")
             except Exception as e:
                 self.logger.error(f"Universe Filter initialization error: {e}")
                 self.universe_filter = None
             
             try:
-                self.momentum_radar = MomentumRadar()
+                self.momentum_radar = MomentumRadar(self.ib, self.config)
                 self.logger.info("Momentum Radar initialized")
             except Exception as e:
                 self.logger.error(f"Momentum Radar initialization error: {e}")
                 self.momentum_radar = None
             
             try:
-                self.golden_hunter = GoldenHunter()
+                self.golden_hunter = GoldenHunter(self.ib, self.config)
                 self.logger.info("Golden Hunter initialized")
             except Exception as e:
                 self.logger.error(f"Golden Hunter initialization error: {e}")
                 self.golden_hunter = None
             
             try:
-                self.options_intelligence = OptionsIntelligence()
+                self.options_intelligence = OptionsIntelligence(self.ib, self.config)
                 self.logger.info("Options Intelligence initialized")
             except Exception as e:
                 self.logger.error(f"Options Intelligence initialization error: {e}")
                 self.options_intelligence = None
             
             try:
-                self.simulation_engine = SimulationEngine()
+                self.simulation_engine = SimulationEngine(self.config)
                 self.logger.info("Simulation Engine initialized")
             except Exception as e:
                 self.logger.error(f"Simulation Engine initialization error: {e}")
                 self.simulation_engine = None
             
             try:
-                self.telegram = TelegramIntegration(
-                    bot_token=self.config.TELEGRAM_BOT_TOKEN,
-                    chat_id=self.config.TELEGRAM_CHAT_ID
-                )
+                self.telegram = TelegramIntegration(self.config)
                 # Test Telegram connection
                 telegram_test = self.telegram.test_connection()
                 self.system_status['telegram_connected'] = telegram_test['success']
@@ -1069,21 +1057,13 @@ class EnhancedTradingPlatform:
                 self.telegram = None
                 self.system_status['telegram_connected'] = False
             
-            # Update system status
-            self.system_status['platform_status'] = 'RUNNING'
-            self.system_status['data_connected'] = self.ibkr_connected or not self.system_status['market_open']
-            
             # Send startup notification if Telegram is available
             if self.system_status['telegram_connected'] and self.telegram:
                 try:
-                    market_status = "OPEN" if self.system_status['market_open'] else "CLOSED"
-                    data_mode = "Live" if self.ibkr_connected else "Demo"
-                    
                     self.telegram.send_system_status_alert(
                         "SYSTEM STARTED",
                         f"Enhanced Trading Platform initialized successfully.\n"
-                        f"Market: {market_status}\n"
-                        f"Data Mode: {data_mode}\n"
+                        f"IBKR: {'Connected' if self.ibkr_connected else 'Demo Mode'}\n"
                         f"Account: {self.config.LIVE_ACCOUNT}"
                     )
                 except Exception as e:
@@ -1093,14 +1073,13 @@ class EnhancedTradingPlatform:
             
         except Exception as e:
             self.logger.error(f"Component initialization error: {e}")
-            self.system_status['platform_status'] = 'ERROR'
     
     def _connect_ibkr(self):
         """Connect to IBKR Gateway"""
         try:
             self.logger.info(f"Connecting to IBKR Gateway at {self.config.IBKR_HOST}:{self.config.LIVE_PORT}")
             
-            # Connect to IBKR Gateway
+            # Connect to IBKR Gateway (Live Trading)
             self.ib.connect(
                 host=self.config.IBKR_HOST,
                 port=self.config.LIVE_PORT,
@@ -1154,104 +1133,22 @@ class EnhancedTradingPlatform:
             """Get system status"""
             return jsonify(self.system_status)
         
-        @self.app.route('/api/scanner/start', methods=['POST'])
-        def api_scanner_start():
-            """Start scanner"""
-            try:
-                if not self.background_running:
-                    self.start_background_tasks()
-                return jsonify({'success': True, 'message': 'Scanner started'})
-            except Exception as e:
-                return jsonify({'success': False, 'error': str(e)}), 500
-        
-        @self.app.route('/api/scanner/stop', methods=['POST'])
-        def api_scanner_stop():
-            """Stop scanner"""
-            try:
-                if self.background_running:
-                    self.stop_background_tasks()
-                return jsonify({'success': True, 'message': 'Scanner stopped'})
-            except Exception as e:
-                return jsonify({'success': False, 'error': str(e)}), 500
-        
-        @self.app.route('/api/options-analysis/<symbol>')
-        def api_options_analysis(symbol):
-            """Get options analysis for symbol - ONLY REAL DATA"""
-            try:
-                # Get real market data only
-                market_data = self._get_last_market_data(symbol.upper())
-                
-                if not market_data:
-                    return jsonify({
-                        'success': False, 
-                        'error': f'No real market data available for {symbol}',
-                        'message': 'Cannot analyze options without real market data'
-                    }), 404
-                
-                # Run real options analysis if component is available
-                if self.options_intelligence:
-                    try:
-                        analysis = self.options_intelligence.analyze_options_chain(symbol.upper(), market_data)
-                        
-                        return jsonify({
-                            'success': True,
-                            'symbol': symbol.upper(),
-                            'analysis': analysis,
-                            'market_data': market_data,
-                            'data_source': market_data.get('source', 'UNKNOWN'),
-                            'market_status': market_data.get('market_status', 'UNKNOWN'),
-                            'timestamp': datetime.now().isoformat()
-                        })
-                        
-                    except Exception as e:
-                        self.logger.error(f"Options analysis error for {symbol}: {e}")
-                        return jsonify({
-                            'success': False, 
-                            'error': f'Options analysis failed: {str(e)}'
-                        }), 500
-                else:
-                    return jsonify({
-                        'success': False, 
-                        'error': 'Options intelligence component not available'
-                    }), 503
-                
-            except Exception as e:
-                self.logger.error(f"Options analysis API error: {e}")
-                return jsonify({'success': False, 'error': str(e)}), 500
-        
-        @self.app.route('/api/telegram/test', methods=['POST'])
-        def api_telegram_test():
-            """Test Telegram connection"""
-            try:
-                result = self.telegram.test_connection()
-                return jsonify(result)
-            except Exception as e:
-                return jsonify({'success': False, 'error': str(e)}), 500
-        
         @self.app.route('/api/golden-opportunities')
         def api_golden_opportunities():
-            """Get golden opportunities - ONLY REAL DATA"""
-            try:
-                # Get real opportunities from last scan results
-                opportunities = self._get_last_opportunities()
-                
-                return jsonify({
-                    'success': True,
-                    'opportunities': opportunities,
-                    'count': len(opportunities),
-                    'last_update': datetime.now().isoformat(),
-                    'data_source': 'REAL_SCAN_RESULTS' if opportunities else 'NO_DATA',
-                    'market_status': 'OPEN' if self._is_market_open() else 'CLOSED'
-                })
-                
-            except Exception as e:
-                self.logger.error(f"Golden opportunities API error: {e}")
-                return jsonify({'success': False, 'error': str(e)}), 500
+            """Get golden opportunities"""
+            return jsonify([])  # Empty list for now
         
         @self.app.route('/api/champion-scan', methods=['POST'])
         def api_champion_scan():
             """Run champion scan"""
             try:
+                # Check if components are initialized
+                if not self.universe_filter or not self.momentum_radar or not self.golden_hunter:
+                    return jsonify({
+                        'success': False,
+                        'error': 'Scanner components not initialized. Please restart the application.'
+                    }), 503
+                
                 # Three-layer scan
                 universe = self.universe_filter.scan_universe()
                 champions = self.momentum_radar.detect_champions(universe)
@@ -1312,167 +1209,6 @@ class EnhancedTradingPlatform:
                 self.stop_background_tasks()
                 emit('scanner_status', {'status': 'stopped'})
     
-    def _get_last_opportunities(self):
-        """Get last real opportunities from scan results - NO FAKE DATA"""
-        try:
-            # Check if we have recent scan results
-            scan_files = []
-            if os.path.exists(self.config.SCAN_DIR):
-                scan_files = [f for f in os.listdir(self.config.SCAN_DIR) if f.endswith('.json')]
-                scan_files.sort(reverse=True)  # Most recent first
-            
-            opportunities = []
-            if scan_files:
-                # Load the most recent scan results
-                latest_scan = os.path.join(self.config.SCAN_DIR, scan_files[0])
-                try:
-                    with open(latest_scan, 'r') as f:
-                        scan_data = json.load(f)
-                        opportunities = scan_data.get('opportunities', [])
-                        self.logger.info(f"Loaded {len(opportunities)} real opportunities from {latest_scan}")
-                except Exception as e:
-                    self.logger.error(f"Error loading scan results: {e}")
-            
-            # If no real opportunities found, return empty list - NO FAKE DATA
-            if not opportunities:
-                self.logger.info("No real opportunities found in scan results")
-                return []
-            
-            return opportunities
-            
-        except Exception as e:
-            self.logger.error(f"Error retrieving last opportunities: {e}")
-            return []
-    
-    def _is_market_open(self):
-        """Check if the market is currently open"""
-        try:
-            import pytz
-            from datetime import datetime, time
-            
-            # US Eastern Time
-            et = pytz.timezone('US/Eastern')
-            now_et = datetime.now(et)
-            
-            # Market hours: 9:30 AM - 4:00 PM ET, Monday-Friday
-            market_open = time(9, 30)
-            market_close = time(16, 0)
-            
-            # Check if it's a weekday
-            if now_et.weekday() >= 5:  # Saturday = 5, Sunday = 6
-                return False
-            
-            # Check if within market hours
-            current_time = now_et.time()
-            return market_open <= current_time <= market_close
-            
-        except Exception as e:
-            self.logger.error(f"Market hours check error: {e}")
-            # Default to closed if we can't determine
-            return False
-    
-    def _get_last_market_data(self, symbol):
-        """Get last available REAL market data for a symbol - NO FAKE DATA"""
-        try:
-            # First try to get live data from IBKR if connected
-            if self.ibkr_connected and self.ib:
-                try:
-                    contract = Stock(symbol, 'SMART', 'USD')
-                    self.ib.qualifyContracts(contract)
-                    ticker = self.ib.reqMktData(contract, '', False, False)
-                    self.ib.sleep(2)  # Wait for data
-                    
-                    if ticker.last and ticker.last > 0:
-                        data = {
-                            'symbol': symbol,
-                            'price': float(ticker.last),
-                            'change': float(ticker.last - ticker.close) if ticker.close else 0.0,
-                            'change_pct': float((ticker.last - ticker.close) / ticker.close * 100) if ticker.close else 0.0,
-                            'volume': int(ticker.volume) if ticker.volume else 0,
-                            'timestamp': datetime.now().isoformat(),
-                            'market_status': 'OPEN' if self._is_market_open() else 'CLOSED',
-                            'source': 'IBKR_LIVE'
-                        }
-                        
-                        # Cache this real data
-                        self._cache_market_data(symbol, data)
-                        self.logger.info(f"Retrieved live IBKR data for {symbol}: ${data['price']}")
-                        return data
-                        
-                except Exception as e:
-                    self.logger.error(f"IBKR live data error for {symbol}: {e}")
-            
-            # Try to get from cache (last real data)
-            cache_file = os.path.join(self.config.DATA_DIR, f"{symbol}_last_data.json")
-            
-            if os.path.exists(cache_file):
-                with open(cache_file, 'r') as f:
-                    data = json.load(f)
-                    # Check if data exists and is real (not fake)
-                    if data.get('source') in ['IBKR_LIVE', 'IBKR_HISTORICAL']:
-                        data['market_status'] = 'CLOSED' if not self._is_market_open() else 'OPEN'
-                        self.logger.info(f"Using cached real data for {symbol}: ${data.get('price', 'N/A')}")
-                        return data
-            
-            # Try to get historical data from IBKR if connected
-            if self.ibkr_connected and self.ib:
-                try:
-                    contract = Stock(symbol, 'SMART', 'USD')
-                    self.ib.qualifyContracts(contract)
-                    
-                    # Get last trading day's data
-                    bars = self.ib.reqHistoricalData(
-                        contract,
-                        endDateTime='',
-                        durationStr='2 D',
-                        barSizeSetting='1 day',
-                        whatToShow='TRADES',
-                        useRTH=True
-                    )
-                    
-                    if bars:
-                        last_bar = bars[-1]
-                        data = {
-                            'symbol': symbol,
-                            'price': float(last_bar.close),
-                            'change': float(last_bar.close - last_bar.open),
-                            'change_pct': float((last_bar.close - last_bar.open) / last_bar.open * 100),
-                            'volume': int(last_bar.volume),
-                            'timestamp': datetime.now().isoformat(),
-                            'market_status': 'CLOSED' if not self._is_market_open() else 'OPEN',
-                            'source': 'IBKR_HISTORICAL'
-                        }
-                        
-                        # Cache this real historical data
-                        self._cache_market_data(symbol, data)
-                        self.logger.info(f"Retrieved historical IBKR data for {symbol}: ${data['price']}")
-                        return data
-                        
-                except Exception as e:
-                    self.logger.error(f"IBKR historical data error for {symbol}: {e}")
-            
-            # If no real data available, return None - NO FAKE DATA
-            self.logger.warning(f"No real market data available for {symbol}")
-            return None
-            
-        except Exception as e:
-            self.logger.error(f"Last market data error for {symbol}: {e}")
-            return None
-    
-    def _cache_market_data(self, symbol, data):
-        """Cache real market data for offline use"""
-        try:
-            cache_file = os.path.join(self.config.DATA_DIR, f"{symbol}_last_data.json")
-            data['timestamp'] = datetime.now().isoformat()
-            
-            with open(cache_file, 'w') as f:
-                json.dump(data, f, indent=2)
-                
-            self.logger.info(f"Cached real market data for {symbol}")
-                
-        except Exception as e:
-            self.logger.error(f"Cache market data error for {symbol}: {e}")
-
     def _save_scan_results(self, opportunities: List[Dict]):
         """Save scan results to file"""
         try:
@@ -1513,7 +1249,7 @@ class EnhancedTradingPlatform:
         self.logger.info("Background scanner stopped")
     
     def _background_worker(self):
-        """Background worker for continuous scanning"""
+        """Background worker for continuous scanning - FIXED VERSION"""
         self.logger.info("Background worker started")
         
         last_scan_time = datetime.now() - timedelta(minutes=10)
@@ -1522,7 +1258,13 @@ class EnhancedTradingPlatform:
             try:
                 current_time = datetime.now()
                 
-                # Run scan every 5 minutes
+                # Check if components are initialized
+                if not self.universe_filter or not self.momentum_radar or not self.golden_hunter:
+                    self.logger.warning("Scanner components not initialized, waiting...")
+                    time.sleep(30)  # Wait 30 seconds before retry
+                    continue
+                
+                # Run scan every 5 minutes (300 seconds)
                 if (current_time - last_scan_time).total_seconds() >= self.config.SCAN_INTERVAL:
                     self.logger.info("Running background champion scan")
                     
@@ -1539,10 +1281,11 @@ class EnhancedTradingPlatform:
                         self.system_status['last_scan'] = current_time
                         self.system_status['opportunities_found'] = len(golden_opportunities)
                         
-                        # Send alerts for golden opportunities
-                        for opportunity in golden_opportunities:
-                            if opportunity.get('alert_level') == 'GOLDEN':
-                                self.telegram.send_golden_opportunity_alert(opportunity)
+                        # Send alerts for golden opportunities if Telegram is available
+                        if self.telegram and self.system_status['telegram_connected']:
+                            for opportunity in golden_opportunities:
+                                if opportunity.get('alert_level') == 'GOLDEN':
+                                    self.telegram.send_golden_opportunity_alert(opportunity)
                         
                         # Broadcast results
                         results = json.loads(json.dumps({
@@ -1558,41 +1301,36 @@ class EnhancedTradingPlatform:
                         
                     except Exception as e:
                         self.logger.error(f"Background scan error: {e}")
+                        time.sleep(60)  # Wait 1 minute on error
                 
                 # Broadcast system status every minute
                 if current_time.second == 0:
                     status_data = json.loads(json.dumps(self.system_status, default=str))
                     self.socketio.emit('system_status_update', status_data)
                 
-                # Sleep for 1 second
-                time.sleep(1)
+                # Sleep for 10 seconds (not 1 second to reduce CPU usage)
+                time.sleep(10)
                 
             except Exception as e:
                 self.logger.error(f"Background worker error: {e}")
-                time.sleep(5)
+                time.sleep(60)  # Wait 1 minute on error
         
         self.logger.info("Background worker stopped")
     
-    def run(self, host='0.0.0.0', port=5001, debug=False):
+    def run(self, host='0.0.0.0', port=5000, debug=False):
         """Run the Enhanced Trading Platform"""
         try:
-            # Start the server
             self.logger.info(f"Starting Enhanced Trading Platform for {self.config.LIVE_ACCOUNT}")
-            self.logger.info(f"Server: http://0.0.0.0:5001")
-            self.logger.info(f"Tailscale Access: http://100.105.11.85:5001")
-            self.logger.info(f"Base Directory: {os.getcwd()}")
+            self.logger.info(f"Server: http://{host}:{port}")
+            self.logger.info(f"Tailscale Access: http://{self.config.LENOVO_IP}:{port}")
+            self.logger.info(f"Base Directory: {self.config.BASE_DIR}")
             
-            # Start background scanner
+            # Start background tasks
             self.start_background_tasks()
             
-            # Run the Flask app
-            self.socketio.run(
-                self.app,
-                host='0.0.0.0',
-                port=5001,
-                debug=False,
-                allow_unsafe_werkzeug=True
-            )
+            # Run Flask app with SocketIO
+            self.socketio.run(self.app, host=host, port=port, debug=debug, allow_unsafe_werkzeug=True)
+            
         except KeyboardInterrupt:
             self.logger.info("Shutting down Enhanced Trading Platform...")
             self.stop_background_tasks()
@@ -1614,7 +1352,7 @@ def main():
     try:
         # Create and run the platform
         platform = EnhancedTradingPlatform()
-        platform.run(host='0.0.0.0', port=5000, debug=False)
+        platform.run(host='0.0.0.0', port=5002, debug=False)
         
     except Exception as e:
         print(f"Fatal error: {e}")
