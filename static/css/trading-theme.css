@@ -1,0 +1,412 @@
+/* Trading Theme CSS for Enhanced Options Trading Platform */
+
+/* Trading-Specific Color Palette */
+:root {
+  /* Trading Colors */
+  --trading-green: #00C853;
+  --trading-red: #FF1744;
+  --trading-orange: #FF9800;
+  --trading-blue: #2196F3;
+  --trading-purple: #9C27B0;
+  --trading-cyan: #00BCD4;
+  
+  /* Background Colors */
+  --trading-bg-primary: #0D1117;
+  --trading-bg-secondary: #161B22;
+  --trading-bg-tertiary: #21262D;
+  --trading-bg-card: #1C2128;
+  
+  /* Text Colors */
+  --trading-text-primary: #F0F6FC;
+  --trading-text-secondary: #8B949E;
+  --trading-text-muted: #656D76;
+  
+  /* Border Colors */
+  --trading-border-primary: #30363D;
+  --trading-border-secondary: #21262D;
+  
+  /* Status Colors */
+  --status-bullish: #00C853;
+  --status-bearish: #FF1744;
+  --status-neutral: #757575;
+  --status-warning: #FF9800;
+  --status-info: #2196F3;
+}
+
+/* Dark Theme Base */
+body {
+  background-color: var(--trading-bg-primary);
+  color: var(--trading-text-primary);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+/* Trading Dashboard Layout */
+.trading-dashboard {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+  background: var(--trading-bg-primary);
+}
+
+.trading-sidebar {
+  background: var(--trading-bg-secondary);
+  border-right: 1px solid var(--trading-border-primary);
+  padding: 20px 0;
+}
+
+.trading-main {
+  background: var(--trading-bg-primary);
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* Trading Cards */
+.trading-card {
+  background: var(--trading-bg-card);
+  border: 1px solid var(--trading-border-primary);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.trading-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--trading-border-secondary);
+}
+
+.trading-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--trading-text-primary);
+  margin: 0;
+}
+
+/* Trading Metrics */
+.trading-metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--trading-border-secondary);
+}
+
+.trading-metric:last-child {
+  border-bottom: none;
+}
+
+.trading-metric-label {
+  color: var(--trading-text-secondary);
+  font-size: 14px;
+}
+
+.trading-metric-value {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.trading-metric-positive {
+  color: var(--trading-green);
+}
+
+.trading-metric-negative {
+  color: var(--trading-red);
+}
+
+.trading-metric-neutral {
+  color: var(--trading-text-primary);
+}
+
+/* Status Indicators */
+.trading-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.trading-status-connected {
+  background: rgba(0, 200, 83, 0.1);
+  color: var(--trading-green);
+  border: 1px solid var(--trading-green);
+}
+
+.trading-status-disconnected {
+  background: rgba(255, 23, 68, 0.1);
+  color: var(--trading-red);
+  border: 1px solid var(--trading-red);
+}
+
+.trading-status-warning {
+  background: rgba(255, 152, 0, 0.1);
+  color: var(--trading-orange);
+  border: 1px solid var(--trading-orange);
+}
+
+.trading-status-info {
+  background: rgba(33, 150, 243, 0.1);
+  color: var(--trading-blue);
+  border: 1px solid var(--trading-blue);
+}
+
+/* Trading Buttons */
+.trading-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  gap: 8px;
+}
+
+.trading-btn-primary {
+  background: var(--trading-blue);
+  color: white;
+}
+
+.trading-btn-primary:hover {
+  background: #1976D2;
+  transform: translateY(-1px);
+}
+
+.trading-btn-success {
+  background: var(--trading-green);
+  color: white;
+}
+
+.trading-btn-success:hover {
+  background: #00A843;
+  transform: translateY(-1px);
+}
+
+.trading-btn-danger {
+  background: var(--trading-red);
+  color: white;
+}
+
+.trading-btn-danger:hover {
+  background: #D50000;
+  transform: translateY(-1px);
+}
+
+.trading-btn-outline {
+  background: transparent;
+  color: var(--trading-text-primary);
+  border: 1px solid var(--trading-border-primary);
+}
+
+.trading-btn-outline:hover {
+  background: var(--trading-bg-tertiary);
+  border-color: var(--trading-text-secondary);
+}
+
+/* Trading Tables */
+.trading-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--trading-bg-card);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.trading-table th {
+  background: var(--trading-bg-tertiary);
+  color: var(--trading-text-secondary);
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.trading-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--trading-border-secondary);
+  color: var(--trading-text-primary);
+}
+
+.trading-table tr:hover {
+  background: var(--trading-bg-tertiary);
+}
+
+/* Trading Forms */
+.trading-form-group {
+  margin-bottom: 16px;
+}
+
+.trading-form-label {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--trading-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.trading-form-input {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--trading-bg-tertiary);
+  border: 1px solid var(--trading-border-primary);
+  border-radius: 6px;
+  color: var(--trading-text-primary);
+  font-size: 14px;
+}
+
+.trading-form-input:focus {
+  outline: none;
+  border-color: var(--trading-blue);
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+}
+
+.trading-form-select {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--trading-bg-tertiary);
+  border: 1px solid var(--trading-border-primary);
+  border-radius: 6px;
+  color: var(--trading-text-primary);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Trading Charts */
+.trading-chart-container {
+  background: var(--trading-bg-card);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.trading-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.trading-chart-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--trading-text-primary);
+}
+
+/* Trading Alerts */
+.trading-alert {
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.trading-alert-success {
+  background: rgba(0, 200, 83, 0.1);
+  border: 1px solid var(--trading-green);
+  color: var(--trading-green);
+}
+
+.trading-alert-error {
+  background: rgba(255, 23, 68, 0.1);
+  border: 1px solid var(--trading-red);
+  color: var(--trading-red);
+}
+
+.trading-alert-warning {
+  background: rgba(255, 152, 0, 0.1);
+  border: 1px solid var(--trading-orange);
+  color: var(--trading-orange);
+}
+
+.trading-alert-info {
+  background: rgba(33, 150, 243, 0.1);
+  border: 1px solid var(--trading-blue);
+  color: var(--trading-blue);
+}
+
+/* Trading Navigation */
+.trading-nav-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  color: var(--trading-text-secondary);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  margin: 2px 12px;
+  gap: 12px;
+}
+
+.trading-nav-item:hover {
+  background: var(--trading-bg-tertiary);
+  color: var(--trading-text-primary);
+}
+
+.trading-nav-item.active {
+  background: var(--trading-blue);
+  color: white;
+}
+
+/* Trading Animations */
+@keyframes trading-pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.trading-pulse {
+  animation: trading-pulse 2s infinite;
+}
+
+@keyframes trading-slide-up {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.trading-slide-up {
+  animation: trading-slide-up 0.3s ease-out;
+}
+
+/* Trading Responsive */
+@media (max-width: 768px) {
+  .trading-dashboard {
+    grid-template-columns: 1fr;
+  }
+  
+  .trading-sidebar {
+    display: none;
+  }
+  
+  .trading-main {
+    padding: 16px;
+  }
+  
+  .trading-card {
+    padding: 16px;
+  }
+}
+

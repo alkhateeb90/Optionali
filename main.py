@@ -61,6 +61,7 @@ class TradingConfig:
         # Set subdirectories based on base directory
         self.SCAN_DIR = os.path.join(self.BASE_DIR, "data", "scans")
         self.TRADE_DIR = os.path.join(self.BASE_DIR, "data", "trades")
+        self.DATA_DIR = os.path.join(self.BASE_DIR, "data")
         self.LOG_DIR = os.path.join(self.BASE_DIR, "logs")
         self.CONFIG_DIR = os.path.join(self.BASE_DIR, "config")
     
@@ -989,50 +990,110 @@ class EnhancedTradingPlatform:
         """Create necessary directories"""
         directories = [
             self.config.SCAN_DIR,
-            self.config.TRADE_DIR,
-            self.config.LOG_DIR,
-            self.config.CONFIG_DIR,
-            os.path.join(self.config.BASE_DIR, 'templates'),
-            os.path.join(self.config.BASE_DIR, 'static'),
-            os.path.join(self.config.BASE_DIR, 'static', 'css'),
-            os.path.join(self.config.BASE_DIR, 'static', 'js')
+            self.config.DATA_DIR,
+            self.config.LOG_DIR
         ]
         
         for directory in directories:
             os.makedirs(directory, exist_ok=True)
-            self.logger.debug(f"Directory created/verified: {directory}")
+            self.logger.info(f"Directory ensured: {directory}")
     
     def _initialize_components(self):
-        """Initialize all trading components"""
+        """Initialize all trading components with proper error handling"""
         try:
-            # Test IBKR connection
+            # Initialize system status with market awareness
+            self.system_status = {
+                'ibkr_connected': False,
+                'data_connected': False,
+                'scanner_running': False,
+                'telegram_connected': False,
+                'market_open': self._is_market_open(),
+                'last_scan': None,
+                'opportunities_found': 0,
+                'alerts_sent': 0,
+                'total_cost': 0.0,
+                'success_rate': 100.0,
+                'platform_status': 'INITIALIZING'
+            }
+            
+            # Connect to IBKR
             self._connect_ibkr()
             
-            # Initialize components
-            self.universe_filter = UniverseFilter(self.ib, self.config)
-            self.momentum_radar = MomentumRadar(self.ib, self.config)
-            self.golden_hunter = GoldenHunter(self.ib, self.config)
-            self.options_intelligence = OptionsIntelligence(self.ib, self.config)
-            self.simulation_engine = SimulationEngine(self.config)
-            self.telegram = TelegramIntegration(self.config)
+            # Initialize components with error handling
+            try:
+                self.universe_filter = UniverseFilter()
+                self.logger.info("Universe Filter initialized")
+            except Exception as e:
+                self.logger.error(f"Universe Filter initialization error: {e}")
+                self.universe_filter = None
             
-            # Test Telegram connection
-            telegram_test = self.telegram.test_connection()
-            self.system_status['telegram_connected'] = telegram_test['success']
+            try:
+                self.momentum_radar = MomentumRadar()
+                self.logger.info("Momentum Radar initialized")
+            except Exception as e:
+                self.logger.error(f"Momentum Radar initialization error: {e}")
+                self.momentum_radar = None
             
-            # Send startup notification
-            if self.system_status['telegram_connected']:
-                self.telegram.send_system_status_alert(
-                    "SYSTEM STARTED",
-                    f"Enhanced Trading Platform initialized successfully. "
-                    f"IBKR: {'Connected' if self.ibkr_connected else 'Demo Mode'}, "
-                    f"Account: {self.config.LIVE_ACCOUNT}"
+            try:
+                self.golden_hunter = GoldenHunter()
+                self.logger.info("Golden Hunter initialized")
+            except Exception as e:
+                self.logger.error(f"Golden Hunter initialization error: {e}")
+                self.golden_hunter = None
+            
+            try:
+                self.options_intelligence = OptionsIntelligence()
+                self.logger.info("Options Intelligence initialized")
+            except Exception as e:
+                self.logger.error(f"Options Intelligence initialization error: {e}")
+                self.options_intelligence = None
+            
+            try:
+                self.simulation_engine = SimulationEngine()
+                self.logger.info("Simulation Engine initialized")
+            except Exception as e:
+                self.logger.error(f"Simulation Engine initialization error: {e}")
+                self.simulation_engine = None
+            
+            try:
+                self.telegram = TelegramIntegration(
+                    bot_token=self.config.TELEGRAM_BOT_TOKEN,
+                    chat_id=self.config.TELEGRAM_CHAT_ID
                 )
+                # Test Telegram connection
+                telegram_test = self.telegram.test_connection()
+                self.system_status['telegram_connected'] = telegram_test['success']
+                self.logger.info(f"Telegram integration: {'Connected' if telegram_test['success'] else 'Failed'}")
+            except Exception as e:
+                self.logger.error(f"Telegram integration error: {e}")
+                self.telegram = None
+                self.system_status['telegram_connected'] = False
+            
+            # Update system status
+            self.system_status['platform_status'] = 'RUNNING'
+            self.system_status['data_connected'] = self.ibkr_connected or not self.system_status['market_open']
+            
+            # Send startup notification if Telegram is available
+            if self.system_status['telegram_connected'] and self.telegram:
+                try:
+                    market_status = "OPEN" if self.system_status['market_open'] else "CLOSED"
+                    data_mode = "Live" if self.ibkr_connected else "Demo"
+                    
+                    self.telegram.send_system_status_alert(
+                        "SYSTEM STARTED",
+                        f"Enhanced Trading Platform initialized successfully.\n"
+                        f"Market: {market_status}\n"
+                        f"Data Mode: {data_mode}\n"
+                        f"Account: {self.config.LIVE_ACCOUNT}"
+                    )
+                except Exception as e:
+                    self.logger.error(f"Startup notification error: {e}")
             
             self.logger.info("All components initialized successfully")
             
         except Exception as e:
             self.logger.error(f"Component initialization error: {e}")
+            self.system_status['platform_status'] = 'ERROR'
     
     def _connect_ibkr(self):
         """Connect to IBKR Gateway"""
@@ -1115,22 +1176,47 @@ class EnhancedTradingPlatform:
         
         @self.app.route('/api/options-analysis/<symbol>')
         def api_options_analysis(symbol):
-            """Get options analysis for symbol"""
+            """Get options analysis for symbol - ONLY REAL DATA"""
             try:
-                # Get stock data
-                stock_data = {'symbol': symbol, 'price': 100}  # Simplified
+                # Get real market data only
+                market_data = self._get_last_market_data(symbol.upper())
                 
-                # Run options analysis
-                analysis = self.options_intelligence.analyze_options_chain(symbol, stock_data)
+                if not market_data:
+                    return jsonify({
+                        'success': False, 
+                        'error': f'No real market data available for {symbol}',
+                        'message': 'Cannot analyze options without real market data'
+                    }), 404
                 
-                return jsonify({
-                    'success': True,
-                    'symbol': symbol,
-                    'analysis': analysis
-                })
+                # Run real options analysis if component is available
+                if self.options_intelligence:
+                    try:
+                        analysis = self.options_intelligence.analyze_options_chain(symbol.upper(), market_data)
+                        
+                        return jsonify({
+                            'success': True,
+                            'symbol': symbol.upper(),
+                            'analysis': analysis,
+                            'market_data': market_data,
+                            'data_source': market_data.get('source', 'UNKNOWN'),
+                            'market_status': market_data.get('market_status', 'UNKNOWN'),
+                            'timestamp': datetime.now().isoformat()
+                        })
+                        
+                    except Exception as e:
+                        self.logger.error(f"Options analysis error for {symbol}: {e}")
+                        return jsonify({
+                            'success': False, 
+                            'error': f'Options analysis failed: {str(e)}'
+                        }), 500
+                else:
+                    return jsonify({
+                        'success': False, 
+                        'error': 'Options intelligence component not available'
+                    }), 503
                 
             except Exception as e:
-                self.logger.error(f"Options analysis error: {e}")
+                self.logger.error(f"Options analysis API error: {e}")
                 return jsonify({'success': False, 'error': str(e)}), 500
         
         @self.app.route('/api/telegram/test', methods=['POST'])
@@ -1140,6 +1226,26 @@ class EnhancedTradingPlatform:
                 result = self.telegram.test_connection()
                 return jsonify(result)
             except Exception as e:
+                return jsonify({'success': False, 'error': str(e)}), 500
+        
+        @self.app.route('/api/golden-opportunities')
+        def api_golden_opportunities():
+            """Get golden opportunities - ONLY REAL DATA"""
+            try:
+                # Get real opportunities from last scan results
+                opportunities = self._get_last_opportunities()
+                
+                return jsonify({
+                    'success': True,
+                    'opportunities': opportunities,
+                    'count': len(opportunities),
+                    'last_update': datetime.now().isoformat(),
+                    'data_source': 'REAL_SCAN_RESULTS' if opportunities else 'NO_DATA',
+                    'market_status': 'OPEN' if self._is_market_open() else 'CLOSED'
+                })
+                
+            except Exception as e:
+                self.logger.error(f"Golden opportunities API error: {e}")
                 return jsonify({'success': False, 'error': str(e)}), 500
         
         @self.app.route('/api/champion-scan', methods=['POST'])
@@ -1206,6 +1312,167 @@ class EnhancedTradingPlatform:
                 self.stop_background_tasks()
                 emit('scanner_status', {'status': 'stopped'})
     
+    def _get_last_opportunities(self):
+        """Get last real opportunities from scan results - NO FAKE DATA"""
+        try:
+            # Check if we have recent scan results
+            scan_files = []
+            if os.path.exists(self.config.SCAN_DIR):
+                scan_files = [f for f in os.listdir(self.config.SCAN_DIR) if f.endswith('.json')]
+                scan_files.sort(reverse=True)  # Most recent first
+            
+            opportunities = []
+            if scan_files:
+                # Load the most recent scan results
+                latest_scan = os.path.join(self.config.SCAN_DIR, scan_files[0])
+                try:
+                    with open(latest_scan, 'r') as f:
+                        scan_data = json.load(f)
+                        opportunities = scan_data.get('opportunities', [])
+                        self.logger.info(f"Loaded {len(opportunities)} real opportunities from {latest_scan}")
+                except Exception as e:
+                    self.logger.error(f"Error loading scan results: {e}")
+            
+            # If no real opportunities found, return empty list - NO FAKE DATA
+            if not opportunities:
+                self.logger.info("No real opportunities found in scan results")
+                return []
+            
+            return opportunities
+            
+        except Exception as e:
+            self.logger.error(f"Error retrieving last opportunities: {e}")
+            return []
+    
+    def _is_market_open(self):
+        """Check if the market is currently open"""
+        try:
+            import pytz
+            from datetime import datetime, time
+            
+            # US Eastern Time
+            et = pytz.timezone('US/Eastern')
+            now_et = datetime.now(et)
+            
+            # Market hours: 9:30 AM - 4:00 PM ET, Monday-Friday
+            market_open = time(9, 30)
+            market_close = time(16, 0)
+            
+            # Check if it's a weekday
+            if now_et.weekday() >= 5:  # Saturday = 5, Sunday = 6
+                return False
+            
+            # Check if within market hours
+            current_time = now_et.time()
+            return market_open <= current_time <= market_close
+            
+        except Exception as e:
+            self.logger.error(f"Market hours check error: {e}")
+            # Default to closed if we can't determine
+            return False
+    
+    def _get_last_market_data(self, symbol):
+        """Get last available REAL market data for a symbol - NO FAKE DATA"""
+        try:
+            # First try to get live data from IBKR if connected
+            if self.ibkr_connected and self.ib:
+                try:
+                    contract = Stock(symbol, 'SMART', 'USD')
+                    self.ib.qualifyContracts(contract)
+                    ticker = self.ib.reqMktData(contract, '', False, False)
+                    self.ib.sleep(2)  # Wait for data
+                    
+                    if ticker.last and ticker.last > 0:
+                        data = {
+                            'symbol': symbol,
+                            'price': float(ticker.last),
+                            'change': float(ticker.last - ticker.close) if ticker.close else 0.0,
+                            'change_pct': float((ticker.last - ticker.close) / ticker.close * 100) if ticker.close else 0.0,
+                            'volume': int(ticker.volume) if ticker.volume else 0,
+                            'timestamp': datetime.now().isoformat(),
+                            'market_status': 'OPEN' if self._is_market_open() else 'CLOSED',
+                            'source': 'IBKR_LIVE'
+                        }
+                        
+                        # Cache this real data
+                        self._cache_market_data(symbol, data)
+                        self.logger.info(f"Retrieved live IBKR data for {symbol}: ${data['price']}")
+                        return data
+                        
+                except Exception as e:
+                    self.logger.error(f"IBKR live data error for {symbol}: {e}")
+            
+            # Try to get from cache (last real data)
+            cache_file = os.path.join(self.config.DATA_DIR, f"{symbol}_last_data.json")
+            
+            if os.path.exists(cache_file):
+                with open(cache_file, 'r') as f:
+                    data = json.load(f)
+                    # Check if data exists and is real (not fake)
+                    if data.get('source') in ['IBKR_LIVE', 'IBKR_HISTORICAL']:
+                        data['market_status'] = 'CLOSED' if not self._is_market_open() else 'OPEN'
+                        self.logger.info(f"Using cached real data for {symbol}: ${data.get('price', 'N/A')}")
+                        return data
+            
+            # Try to get historical data from IBKR if connected
+            if self.ibkr_connected and self.ib:
+                try:
+                    contract = Stock(symbol, 'SMART', 'USD')
+                    self.ib.qualifyContracts(contract)
+                    
+                    # Get last trading day's data
+                    bars = self.ib.reqHistoricalData(
+                        contract,
+                        endDateTime='',
+                        durationStr='2 D',
+                        barSizeSetting='1 day',
+                        whatToShow='TRADES',
+                        useRTH=True
+                    )
+                    
+                    if bars:
+                        last_bar = bars[-1]
+                        data = {
+                            'symbol': symbol,
+                            'price': float(last_bar.close),
+                            'change': float(last_bar.close - last_bar.open),
+                            'change_pct': float((last_bar.close - last_bar.open) / last_bar.open * 100),
+                            'volume': int(last_bar.volume),
+                            'timestamp': datetime.now().isoformat(),
+                            'market_status': 'CLOSED' if not self._is_market_open() else 'OPEN',
+                            'source': 'IBKR_HISTORICAL'
+                        }
+                        
+                        # Cache this real historical data
+                        self._cache_market_data(symbol, data)
+                        self.logger.info(f"Retrieved historical IBKR data for {symbol}: ${data['price']}")
+                        return data
+                        
+                except Exception as e:
+                    self.logger.error(f"IBKR historical data error for {symbol}: {e}")
+            
+            # If no real data available, return None - NO FAKE DATA
+            self.logger.warning(f"No real market data available for {symbol}")
+            return None
+            
+        except Exception as e:
+            self.logger.error(f"Last market data error for {symbol}: {e}")
+            return None
+    
+    def _cache_market_data(self, symbol, data):
+        """Cache real market data for offline use"""
+        try:
+            cache_file = os.path.join(self.config.DATA_DIR, f"{symbol}_last_data.json")
+            data['timestamp'] = datetime.now().isoformat()
+            
+            with open(cache_file, 'w') as f:
+                json.dump(data, f, indent=2)
+                
+            self.logger.info(f"Cached real market data for {symbol}")
+                
+        except Exception as e:
+            self.logger.error(f"Cache market data error for {symbol}: {e}")
+
     def _save_scan_results(self, opportunities: List[Dict]):
         """Save scan results to file"""
         try:
