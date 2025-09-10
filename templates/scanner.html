@@ -714,15 +714,33 @@ function manualScan() {
     updateStageStatus('stage1-status', 'Scanning');
     updateStageStatus('stage2-status', 'Waiting');
     
-    fetch('/api/champion-scan', { method: 'POST' })
+    // Use the manual-scan endpoint instead of champion-scan
+    fetch('/api/manual-scan', { method: 'POST' })
         .then(response => response.json())
         .then(data => {
-            updateScanResults(data);
+            console.log('Manual scan response:', data);
+            
+            if (data.success) {
+                updateScanResults(data);
+                updateStageStatus('stage1-status', 'Complete');
+                updateStageStatus('stage2-status', 'Complete');
+                
+                // Update stage counts
+                updateStageCount('stage1-count', data.universe_count || 0);
+                updateStageCount('stage2-count', data.champions_count || 0);
+                updateStageCount('golden-count', data.golden_opportunities ? data.golden_opportunities.length : 0);
+                
+                // Show success message
+                showNotification('Manual scan completed successfully!', 'success');
+            } else {
+                updateStageStatus('stage1-status', 'Error');
+                updateStageStatus('stage2-status', 'Error');
+                showNotification('Manual scan failed: ' + (data.error || 'Unknown error'), 'error');
+            }
+            
             setTimeout(() => {
                 button.disabled = false;
                 button.innerHTML = '<span class="material-icons">search</span>Manual Scan';
-                updateStageStatus('stage1-status', 'Complete');
-                updateStageStatus('stage2-status', 'Complete');
             }, 2000);
         })
         .catch(error => {
@@ -731,6 +749,7 @@ function manualScan() {
             button.innerHTML = '<span class="material-icons">search</span>Manual Scan';
             updateStageStatus('stage1-status', 'Error');
             updateStageStatus('stage2-status', 'Error');
+            showNotification('Manual scan failed: Network error', 'error');
         });
 }
 
@@ -820,15 +839,26 @@ function updateScanProgress(data) {
 }
 
 function updateScanResults(data) {
-    scanResults = data.results || [];
+    console.log('Updating scan results with data:', data);
     
-    // Update stats
-    document.getElementById('golden-count').textContent = `${data.golden_count || 0} Golden`;
+    // Handle the golden_opportunities array from the API response
+    scanResults = data.golden_opportunities || [];
+    
+    // Update stats with correct data structure
+    document.getElementById('golden-count').textContent = `${scanResults.length} Golden`;
     document.getElementById('champions-count').textContent = `${data.champions_count || 0} Champions`;
-    document.getElementById('scan-time').textContent = data.scan_time || '--';
+    document.getElementById('scan-time').textContent = data.scan_time ? new Date(data.scan_time).toLocaleTimeString() : '--';
     
-    // Update layer counts
-    updateScanProgress(data);
+    // Update layer counts with correct data
+    updateScanProgress({
+        universe_size: data.universe_count || 0,
+        filtered_size: 500,
+        champions_size: data.champions_count || 0,
+        golden_size: scanResults.length
+    });
+    
+    // Update last update time
+    document.getElementById('last-update-time').textContent = new Date().toLocaleTimeString();
     
     // Render results
     renderResults();
@@ -974,6 +1004,47 @@ function resetFilters() {
 function analyzeOptions(symbol) {
     window.location.href = `/trade-builder?symbol=${symbol}`;
 }
+
+// Helper functions for scanner functionality
+function updateStageCount(elementId, count) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.textContent = count;
+    }
+}
+
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <span class="material-icons">
+            ${type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info'}
+        </span>
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()" class="notification-close">
+            <span class="material-icons">close</span>
+        </button>
+    `;
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// Initialize scanner when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    loadScanResults();
+    
+    // Load results every 30 seconds
+    setInterval(loadScanResults, 30000);
+});
 
 function viewDetails(symbol) {
     // Open details modal or navigate to details page

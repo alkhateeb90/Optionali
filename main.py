@@ -1284,6 +1284,96 @@ class EnhancedTradingPlatform:
                 self.logger.error(f"Champion scan error: {e}")
                 return jsonify({'success': False, 'error': str(e)}), 500
         
+        @self.app.route('/api/manual-scan', methods=['POST'])
+        def api_manual_scan():
+            """Run manual scan - same as champion scan but triggered manually"""
+            try:
+                # Check if components are initialized
+                if not self.universe_filter or not self.momentum_radar or not self.golden_hunter:
+                    return jsonify({
+                        'success': False,
+                        'error': 'Scanner components not initialized. Please restart the application.'
+                    }), 503
+                
+                self.logger.info("Running manual scan")
+                
+                # Three-layer scan
+                universe = self.universe_filter.scan_universe()
+                self.logger.info(f"Universe scan: {len(universe)} stocks")
+                
+                champions = self.momentum_radar.detect_champions(universe)
+                self.logger.info(f"Champions detected: {len(champions)} stocks")
+                
+                golden_opportunities = self.golden_hunter.hunt_golden(champions)
+                self.logger.info(f"Golden opportunities: {len(golden_opportunities)} found")
+                
+                # Save results
+                self._save_scan_results(golden_opportunities)
+                
+                # Update system status
+                self.system_status['last_scan'] = datetime.now()
+                self.system_status['opportunities_found'] = len(golden_opportunities)
+                
+                # Broadcast results via WebSocket
+                self.socketio.emit('scan_results', {
+                    'universe_count': len(universe),
+                    'champions_count': len(champions),
+                    'golden_opportunities': golden_opportunities,
+                    'scan_time': datetime.now().isoformat()
+                })
+                
+                return jsonify({
+                    'success': True,
+                    'universe_count': len(universe),
+                    'champions_count': len(champions),
+                    'golden_opportunities': golden_opportunities,
+                    'scan_time': datetime.now().isoformat()
+                })
+                
+            except Exception as e:
+                self.logger.error(f"Manual scan error: {e}")
+                return jsonify({'success': False, 'error': str(e)}), 500
+        
+        @self.app.route('/api/scan-results')
+        def api_scan_results():
+            """Get latest scan results"""
+            try:
+                # Get the most recent scan file
+                scan_dir = os.path.join(self.config.DATA_DIR, 'scans')
+                if not os.path.exists(scan_dir):
+                    return jsonify({
+                        'success': True,
+                        'golden_opportunities': [],
+                        'message': 'No scan results available yet'
+                    })
+                
+                scan_files = [f for f in os.listdir(scan_dir) if f.startswith('scan_') and f.endswith('.json')]
+                if not scan_files:
+                    return jsonify({
+                        'success': True,
+                        'golden_opportunities': [],
+                        'message': 'No scan results available yet'
+                    })
+                
+                # Get the most recent file
+                latest_file = max(scan_files, key=lambda f: os.path.getctime(os.path.join(scan_dir, f)))
+                file_path = os.path.join(scan_dir, latest_file)
+                
+                with open(file_path, 'r') as f:
+                    scan_data = json.load(f)
+                
+                return jsonify({
+                    'success': True,
+                    'golden_opportunities': scan_data.get('golden_opportunities', []),
+                    'universe_count': scan_data.get('universe_count', 0),
+                    'champions_count': scan_data.get('champions_count', 0),
+                    'scan_time': scan_data.get('scan_time', 'Unknown')
+                })
+                
+            except Exception as e:
+                self.logger.error(f"Scan results error: {e}")
+                return jsonify({'success': False, 'error': str(e)}), 500
+        
         @self.app.route('/api/options-analysis/<symbol>')
         def api_options_analysis(symbol):
             """Analyze options for a specific symbol"""
